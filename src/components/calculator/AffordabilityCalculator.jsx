@@ -21,9 +21,14 @@ export default function AffordabilityCalculator() {
   const [amortization, setAmortization] = useState(25);
   const [mortgageTerm, setMortgageTerm] = useState(5);
   const [mortgageType, setMortgageType] = useState("fixed");
+  const [lenderName, setLenderName] = useState("BMO");
   const [isToronto, setIsToronto] = useState(true);
   const [isFirstTimeBuyer, setIsFirstTimeBuyer] = useState(true);
   
+  // New Mortgage Insurance State
+  const [mortgageInsuranceType, setMortgageInsuranceType] = useState("auto"); // 'auto' or 'manual'
+  const [manualMortgageInsurance, setManualMortgageInsurance] = useState(0);
+
   // Detailed Closing Costs
   const [closingCostBreakdown, setClosingCostBreakdown] = useState({
     legal: 1500,
@@ -38,11 +43,17 @@ export default function AffordabilityCalculator() {
 
   // Constants & Bank Data
   const BANK_RATES = [
-    { name: "RBC", rate: 4.84, type: "fixed", logo: "Bg-blue-600" },
-    { name: "TD", rate: 4.99, type: "fixed", logo: "Bg-green-600" },
-    { name: "Scotiabank", rate: 5.09, type: "fixed", logo: "Bg-red-600" },
-    { name: "BMO", rate: 4.79, type: "fixed", logo: "Bg-blue-800" }
+    { name: "RBC", rate: 4.84, type: "fixed" },
+    { name: "TD", rate: 4.99, type: "fixed" },
+    { name: "Scotiabank", rate: 5.09, type: "fixed" },
+    { name: "BMO", rate: 4.79, type: "fixed" },
+    { name: "CIBC", rate: 4.89, type: "fixed" },
+    { name: "National Bank", rate: 4.94, type: "fixed" },
+    { name: "EQ Bank", rate: 4.69, type: "fixed" },
+    { name: "Tangerine", rate: 4.74, type: "fixed" }
   ];
+
+  const STRESS_TEST_BENCHMARK = 5.25;
 
   // Derived Values
   const totalClosingCosts = Object.values(closingCostBreakdown).reduce((a, b) => a + b, 0);
@@ -50,7 +61,9 @@ export default function AffordabilityCalculator() {
   
   // Calculate CMHC Insurance
   const calculateCMHC = () => {
+    if (mortgageInsuranceType === 'manual') return manualMortgageInsurance;
     if (downPaymentPercent >= 20) return 0;
+    
     let premiumRate = 0.04; // Default 4% for 5-9.99%
     if (downPaymentPercent >= 15) premiumRate = 0.028;
     else if (downPaymentPercent >= 10) premiumRate = 0.031;
@@ -62,14 +75,22 @@ export default function AffordabilityCalculator() {
   const totalMortgageAmount = (price - downPaymentAmount) + mortgageInsurance;
 
   // Calculation Functions
-  const calculateMortgagePayment = () => {
-    const monthlyRate = interestRate / 100 / 12;
-    const numberOfPayments = amortization * 12;
-    if (interestRate === 0) return totalMortgageAmount / numberOfPayments;
+  const calculatePayment = (principal, rate, years) => {
+    const monthlyRate = rate / 100 / 12;
+    const numberOfPayments = years * 12;
+    if (rate === 0) return principal / numberOfPayments;
     
-    return (totalMortgageAmount * monthlyRate * Math.pow(1 + monthlyRate, numberOfPayments)) / 
+    return (principal * monthlyRate * Math.pow(1 + monthlyRate, numberOfPayments)) / 
            (Math.pow(1 + monthlyRate, numberOfPayments) - 1);
   };
+
+  const calculateMortgagePayment = () => {
+    return calculatePayment(totalMortgageAmount, interestRate, amortization);
+  };
+
+  // Stress Test Calculation
+  const stressTestRate = Math.max(interestRate + 2, STRESS_TEST_BENCHMARK);
+  const stressTestPayment = calculatePayment(totalMortgageAmount, stressTestRate, amortization);
 
   const calculateOntarioLTT = (price) => {
     let tax = 0;
@@ -163,11 +184,15 @@ export default function AffordabilityCalculator() {
         amortization: amortization,
         mortgage_term: mortgageTerm,
         mortgage_type: mortgageType,
+        lender_name: lenderName,
+        mortgage_insurance_type: mortgageInsuranceType,
         is_toronto: isToronto,
         is_first_time_buyer: isFirstTimeBuyer,
         closing_costs: totalClosingCosts,
         closing_costs_breakdown: closingCostBreakdown,
         mortgage_insurance: mortgageInsurance,
+        stress_test_rate: stressTestRate,
+        stress_test_payment: stressTestPayment,
         monthly_payment: monthlyPayment,
         total_ltt: totalLTT,
         total_cash_needed: totalUpfront
@@ -330,27 +355,33 @@ export default function AffordabilityCalculator() {
                         {new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(totalMortgageAmount)}
                     </span>
                 </div>
-                
-                {/* Rate Selection */}
-                <div className="grid grid-cols-4 gap-2 mb-4">
-                  {BANK_RATES.map((bank) => (
-                    <button
-                      key={bank.name}
-                      onClick={() => {
-                        setInterestRate(bank.rate);
-                        setMortgageType(bank.type);
-                      }}
-                      className={`p-2 rounded-lg border text-center transition-all ${
-                        interestRate === bank.rate
-                          ? 'border-emerald-500 bg-emerald-50 ring-1 ring-emerald-500' 
-                          : 'border-slate-200 hover:border-emerald-200 hover:bg-slate-50'
-                      }`}
+
+                {/* Lender Selection */}
+                <div className="space-y-3">
+                    <Label className="text-slate-700 font-medium">Lender</Label>
+                    <Select 
+                        value={lenderName} 
+                        onValueChange={(val) => {
+                            setLenderName(val);
+                            const bank = BANK_RATES.find(b => b.name === val);
+                            if (bank) {
+                                setInterestRate(bank.rate);
+                                setMortgageType(bank.type);
+                            }
+                        }}
                     >
-                      <div className="text-xs font-bold text-slate-900">{bank.name}</div>
-                      <div className="text-lg font-bold text-emerald-600">{bank.rate}%</div>
-                      <div className="text-[10px] text-slate-500 uppercase">{bank.type}</div>
-                    </button>
-                  ))}
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select a lender" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="Custom">Custom Rate / Other Lender</SelectItem>
+                            {BANK_RATES.map(bank => (
+                                <SelectItem key={bank.name} value={bank.name}>
+                                    {bank.name} - {bank.rate}% ({bank.type})
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -360,7 +391,12 @@ export default function AffordabilityCalculator() {
                         <Input 
                             type="number" 
                             value={interestRate} 
-                            onChange={(e) => setInterestRate(Number(e.target.value))}
+                            onChange={(e) => {
+                                setInterestRate(Number(e.target.value));
+                                if (!BANK_RATES.find(b => b.rate === Number(e.target.value))) {
+                                    setLenderName("Custom");
+                                }
+                            }}
                             step="0.01"
                             className="font-semibold pr-8"
                         />
@@ -413,6 +449,63 @@ export default function AffordabilityCalculator() {
                                 </button>
                             ))}
                         </div>
+                    </div>
+                </div>
+
+                {/* Mortgage Insurance Configuration */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                    <div className="flex justify-between items-center">
+                         <div className="flex items-center gap-2">
+                             <Label className="text-slate-700 font-medium">Mortgage Insurance (CMHC)</Label>
+                             <TooltipProvider>
+                                <Tooltip>
+                                <TooltipTrigger>
+                                    <Info className="w-4 h-4 text-slate-400" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>Required for down payments under 20%.</p>
+                                </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                         </div>
+                         <span className="font-bold text-emerald-600">
+                             {new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(mortgageInsurance)}
+                         </span>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-3 rounded-lg">
+                        <div>
+                             <Label className="text-xs text-slate-500 mb-2 block">Calculation Method</Label>
+                             <div className="flex p-1 bg-white border border-slate-200 rounded-md">
+                                {['auto', 'manual'].map((type) => (
+                                    <button
+                                        key={type}
+                                        onClick={() => setMortgageInsuranceType(type)}
+                                        className={`flex-1 py-1 text-xs font-medium rounded transition-all capitalize ${
+                                            mortgageInsuranceType === type 
+                                            ? 'bg-slate-900 text-white' 
+                                            : 'text-slate-500 hover:text-slate-700'
+                                        }`}
+                                    >
+                                        {type}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                        {mortgageInsuranceType === 'manual' && (
+                             <div>
+                                <Label className="text-xs text-slate-500 mb-2 block">Manual Amount</Label>
+                                <div className="relative">
+                                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 text-xs">$</span>
+                                    <Input 
+                                        type="number" 
+                                        value={manualMortgageInsurance} 
+                                        onChange={(e) => setManualMortgageInsurance(Number(e.target.value))}
+                                        className="pl-5 h-8 text-sm"
+                                    />
+                                </div>
+                             </div>
+                        )}
                     </div>
                 </div>
             </div>
@@ -544,6 +637,8 @@ export default function AffordabilityCalculator() {
             closingCosts={totalClosingCosts}
             isFirstTimeBuyer={isFirstTimeBuyer}
             mortgageInsurance={mortgageInsurance}
+            stressTestPayment={stressTestPayment}
+            stressTestRate={stressTestRate}
           />
         </div>
       </div>

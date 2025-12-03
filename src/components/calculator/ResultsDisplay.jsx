@@ -14,7 +14,9 @@ export default function ResultsDisplay({
   downPaymentAmount,
   closingCosts,
   isFirstTimeBuyer,
-  mortgageInsurance
+  mortgageInsurance,
+  stressTestPayment,
+  stressTestRate
 }) {
   
   const upfrontData = [
@@ -52,8 +54,9 @@ export default function ResultsDisplay({
               )}
             </div>
             <div>
-              <p className="text-emerald-300">Interest Cost (5yr)</p>
-              <p className="font-semibold text-lg">~{formatCurrency(mortgagePayment * 12 * 5 * 0.4)}</p> {/* Rough estimate for visual */}
+              <p className="text-emerald-300">Stress Test Payment</p>
+              <p className="font-semibold text-lg">{formatCurrency(stressTestPayment)}</p>
+              <p className="text-xs text-emerald-400">@{stressTestRate.toFixed(2)}% qualifying rate</p>
             </div>
           </div>
         </div>
