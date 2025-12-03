@@ -6,8 +6,11 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Info, RefreshCw } from 'lucide-react';
+import { Info, RefreshCw, Save } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { base44 } from "@/api/base44Client";
 import ResultsDisplay from './ResultsDisplay';
 
 export default function AffordabilityCalculator() {
@@ -19,6 +22,11 @@ export default function AffordabilityCalculator() {
   const [isToronto, setIsToronto] = useState(true);
   const [isFirstTimeBuyer, setIsFirstTimeBuyer] = useState(true);
   const [closingCosts, setClosingCosts] = useState(2000); // Default estimation for legal/misc
+  
+  // Save Scenario State
+  const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
+  const [scenarioName, setScenarioName] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   // Derived Values
   const downPaymentAmount = price * (downPaymentPercent / 100);
@@ -100,6 +108,36 @@ export default function AffordabilityCalculator() {
   const handlePriceChange = (e) => {
     const val = Number(e.target.value);
     setPrice(val);
+  };
+
+  const handleSaveScenario = async () => {
+    if (!scenarioName.trim()) return;
+    
+    setIsSaving(true);
+    try {
+      await base44.entities.Scenario.create({
+        name: scenarioName,
+        property_price: price,
+        down_payment_percent: downPaymentPercent,
+        interest_rate: interestRate,
+        amortization: amortization,
+        is_toronto: isToronto,
+        is_first_time_buyer: isFirstTimeBuyer,
+        closing_costs: closingCosts,
+        monthly_payment: monthlyPayment,
+        total_ltt: totalLTT,
+        total_cash_needed: totalUpfront
+      });
+      setIsSaveDialogOpen(false);
+      setScenarioName("");
+      // Optional: Add toast notification here if available
+      alert("Scenario saved successfully!");
+    } catch (error) {
+      console.error("Failed to save scenario:", error);
+      alert("Failed to save scenario. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -299,13 +337,55 @@ export default function AffordabilityCalculator() {
 
         {/* Assumptions / Disclaimer */}
         <p className="text-xs text-slate-400 px-4">
-          *Calculations are estimates. Closing costs include legal fees, disbursements, and title insurance (estimated). Mortgage default insurance (CMHC) is not included in this simple calculation but applies if down payment is less than 20%.
+        *Calculations are estimates. Closing costs include legal fees, disbursements, and title insurance (estimated). Mortgage default insurance (CMHC) is not included in this simple calculation but applies if down payment is less than 20%.
         </p>
-      </div>
+        </div>
+
+        {/* Save Dialog */}
+        <Dialog open={isSaveDialogOpen} onOpenChange={setIsSaveDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Save Scenario</DialogTitle>
+          <DialogDescription>
+            Give this calculation a name to save it for later comparison.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="name" className="text-right">
+              Name
+            </Label>
+            <Input
+              id="name"
+              placeholder="e.g. Dream Condo"
+              value={scenarioName}
+              onChange={(e) => setScenarioName(e.target.value)}
+              className="col-span-3"
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setIsSaveDialogOpen(false)}>Cancel</Button>
+          <Button onClick={handleSaveScenario} disabled={!scenarioName.trim() || isSaving}>
+            {isSaving ? "Saving..." : "Save Scenario"}
+          </Button>
+        </DialogFooter>
+        </DialogContent>
+        </Dialog>
 
       {/* Results Section */}
       <div className="lg:col-span-5">
-        <div className="sticky top-24">
+        <div className="sticky top-24 space-y-6">
+          <div className="flex justify-end">
+             <Button 
+               onClick={() => setIsSaveDialogOpen(true)}
+               className="bg-slate-800 hover:bg-slate-900 text-white gap-2"
+             >
+               <Save className="w-4 h-4" />
+               Save Scenario
+             </Button>
+          </div>
+
           <ResultsDisplay 
             mortgagePayment={monthlyPayment}
             landTransferTax={totalLTT}

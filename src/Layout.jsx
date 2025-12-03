@@ -19,6 +19,12 @@ export default function Layout({ children }) {
           </Link>
           
           <nav className="hidden md:flex items-center gap-6">
+            <Link 
+                to={createPageUrl('SavedScenarios')}
+                className="text-sm font-medium text-slate-600 hover:text-emerald-600 transition-colors"
+            >
+                My Scenarios
+            </Link>
             <div className="flex items-center text-sm font-medium text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
               <MapPin className="w-3 h-3 mr-1 text-emerald-600" />
               Ontario, Canada
