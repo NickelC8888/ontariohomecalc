@@ -535,6 +535,7 @@ export default function AffordabilityCalculator() {
           </div>
 
           <ResultsDisplay 
+            propertyPrice={price}
             mortgagePayment={monthlyPayment}
             landTransferTax={totalLTT}
             totalUpfront={totalUpfront}

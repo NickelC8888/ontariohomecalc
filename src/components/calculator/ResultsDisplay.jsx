@@ -6,6 +6,7 @@ import { DollarSign, ArrowRight, Building, PiggyBank, Gavel } from 'lucide-react
 import { motion } from "framer-motion";
 
 export default function ResultsDisplay({ 
+  propertyPrice,
   mortgagePayment, 
   landTransferTax, 
   totalUpfront, 
@@ -21,6 +22,8 @@ export default function ResultsDisplay({
     { name: 'Land Transfer Tax', value: landTransferTax, color: '#0891b2' }, // Cyan 600
     { name: 'Closing Costs', value: closingCosts, color: '#6366f1' }, // Indigo 500
   ];
+
+  const mortgagePrincipal = propertyPrice - downPaymentAmount;
 
   const formatCurrency = (val) => 
     new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(val);
@@ -56,75 +59,119 @@ export default function ResultsDisplay({
         </div>
       </motion.div>
 
-      {/* Upfront Costs Breakdown */}
+      {/* Purchase Price Summary */}
       <Card className="border-slate-200 shadow-sm">
-        <CardHeader>
+        <CardHeader className="pb-2">
           <CardTitle className="text-lg font-semibold flex items-center gap-2">
-            <PiggyBank className="w-5 h-5 text-emerald-600" />
-            Total Cash Required Upfront
+            <Building className="w-5 h-5 text-slate-600" />
+            Purchase Price Summary
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="flex flex-col md:flex-row items-center gap-8">
-            <div className="w-full md:w-1/2 h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={upfrontData}
-                    innerRadius={60}
-                    outerRadius={80}
-                    paddingAngle={5}
-                    dataKey="value"
-                  >
-                    {upfrontData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip 
-                    formatter={(value) => formatCurrency(value)}
-                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-                  />
-                  <Legend verticalAlign="bottom" height={36} iconType="circle" />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            
-            <div className="w-full md:w-1/2 space-y-4">
-              <div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-emerald-600"></div>
-                  <span className="text-sm font-medium text-slate-600">Down Payment</span>
+        <CardContent className="space-y-3">
+          <div className="flex justify-between items-center p-2">
+             <span className="text-slate-600">Down Payment</span>
+             <span className="font-bold">{formatCurrency(downPaymentAmount)}</span>
+          </div>
+          <div className="flex justify-between items-center p-2 bg-slate-50 rounded-lg">
+             <span className="text-slate-600">Mortgage Amount</span>
+             <span className="font-bold">{formatCurrency(mortgagePrincipal)}</span>
+          </div>
+          <div className="flex justify-between items-center p-2 border-t border-slate-100 mt-2">
+             <span className="font-bold text-slate-900">Total Purchase Price</span>
+             <span className="font-bold text-slate-900 text-lg">{formatCurrency(propertyPrice)}</span>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Closing Costs Breakdown */}
+      <Card className="border-slate-200 shadow-sm">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg font-semibold flex items-center gap-2">
+            <Gavel className="w-5 h-5 text-emerald-600" />
+            Amount Due on Closing
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+           <div className="space-y-3">
+              <div className="flex justify-between items-center p-2 hover:bg-slate-50 rounded-lg transition-colors">
+                <div className="flex flex-col">
+                    <span className="text-slate-700 font-medium">Down Payment</span>
+                    <span className="text-xs text-slate-500">Provided by User</span>
                 </div>
                 <span className="font-bold text-slate-900">{formatCurrency(downPaymentAmount)}</span>
               </div>
 
-              <div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-cyan-600"></div>
-                  <span className="text-sm font-medium text-slate-600">Land Transfer Tax</span>
+              <div className="flex justify-between items-center p-2 hover:bg-slate-50 rounded-lg transition-colors">
+                <div className="flex flex-col">
+                    <span className="text-slate-700 font-medium">Land Transfer Tax</span>
+                    <span className="text-xs text-slate-500">Provided by User</span>
                 </div>
                 <div className="text-right">
-                  <span className="font-bold text-slate-900 block">{formatCurrency(landTransferTax)}</span>
-                  {isFirstTimeBuyer && <span className="text-xs text-emerald-600 font-medium">Rebate Applied</span>}
+                    <span className="font-bold text-slate-900 block">{formatCurrency(landTransferTax)}</span>
+                    {isFirstTimeBuyer && <span className="text-xs text-emerald-600 font-medium">Rebate Applied</span>}
                 </div>
               </div>
 
-              <div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-indigo-500"></div>
-                  <span className="text-sm font-medium text-slate-600">Legal & Misc</span>
+              <div className="flex justify-between items-center p-2 hover:bg-slate-50 rounded-lg transition-colors">
+                <div className="flex flex-col">
+                    <span className="text-slate-700 font-medium">Legal & Misc</span>
+                    <span className="text-xs text-slate-500">Provided by User</span>
                 </div>
                 <span className="font-bold text-slate-900">{formatCurrency(closingCosts)}</span>
               </div>
 
-              <div className="pt-4 border-t border-slate-100 flex justify-between items-center">
-                <span className="font-bold text-slate-900 text-lg">Total Cash Needed</span>
-                <span className="font-bold text-emerald-600 text-xl">{formatCurrency(totalUpfront)}</span>
+              <div className="flex justify-between items-center p-2 bg-emerald-50 rounded-lg transition-colors border border-emerald-100">
+                <div className="flex flex-col">
+                    <span className="text-slate-700 font-medium">Mortgage</span>
+                    <span className="text-xs text-emerald-600 font-medium">Provided by Lending Institution</span>
+                </div>
+                <span className="font-bold text-slate-900">{formatCurrency(mortgagePrincipal)}</span>
               </div>
-            </div>
-          </div>
+           </div>
+
+           <div className="pt-4 border-t border-slate-200 flex justify-between items-center">
+              <div className="flex flex-col">
+                <span className="font-bold text-slate-900 text-lg">Total Amount</span>
+                <span className="text-xs text-slate-500">Purchase Price + Closing Costs</span>
+              </div>
+              <span className="font-bold text-slate-900 text-xl">
+                  {formatCurrency(propertyPrice + landTransferTax + closingCosts)}
+              </span>
+           </div>
         </CardContent>
       </Card>
+      
+      {/* Visual Breakdown (Optional - Kept minimal) */}
+      <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
+         <h4 className="text-sm font-semibold text-slate-700 mb-4">Cash Required Upfront (User)</h4>
+         <div className="h-48">
+            <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+                <Pie
+                data={upfrontData}
+                innerRadius={50}
+                outerRadius={70}
+                paddingAngle={5}
+                dataKey="value"
+                >
+                {upfrontData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+                </Pie>
+                <Tooltip 
+                formatter={(value) => formatCurrency(value)}
+                contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                />
+                <Legend verticalAlign="bottom" height={36} iconType="circle" />
+            </PieChart>
+            </ResponsiveContainer>
+         </div>
+         <div className="text-center mt-2">
+             <span className="text-sm text-slate-500">Total Cash Needed: </span>
+             <span className="font-bold text-slate-900">{formatCurrency(totalUpfront)}</span>
+         </div>
+      </div>
+
     </div>
   );
 }
