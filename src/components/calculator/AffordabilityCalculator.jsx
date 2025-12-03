@@ -130,7 +130,14 @@ export default function AffordabilityCalculator() {
 
   // Results
   const monthlyPayment = calculateMortgagePayment();
-  const totalLTT = calculateTotalLTT();
+  
+  // LTT Breakdown
+  const rawOntarioLTT = calculateOntarioLTT(price);
+  const rawTorontoLTT = calculateTorontoLTT(price);
+  const ontarioRebate = isFirstTimeBuyer ? Math.min(rawOntarioLTT, 4000) : 0;
+  const torontoRebate = (isToronto && isFirstTimeBuyer) ? Math.min(rawTorontoLTT, 4475) : 0;
+  const totalLTT = (rawOntarioLTT - ontarioRebate) + (rawTorontoLTT - torontoRebate);
+  
   const totalUpfront = downPaymentAmount + totalLTT + totalClosingCosts;
 
   // Handlers
@@ -254,6 +261,64 @@ export default function AffordabilityCalculator() {
                      {pct}%
                    </button>
                  ))}
+              </div>
+            </div>
+
+            {/* Land Transfer Tax Section */}
+            <div className="space-y-4">
+              <div className="flex justify-between items-end">
+                <Label className="text-base font-semibold text-slate-700">Land Transfer Tax</Label>
+                <span className="font-bold text-slate-900 text-lg">
+                    {new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(totalLTT)}
+                </span>
+              </div>
+              
+              <div className="bg-slate-50 p-4 rounded-xl space-y-4 border border-slate-100">
+                <div className="flex items-center justify-between">
+                  <Label className="font-medium text-slate-700 cursor-pointer" htmlFor="toronto-switch">Property is in Toronto</Label>
+                  <Switch 
+                    id="toronto-switch"
+                    checked={isToronto}
+                    onCheckedChange={setIsToronto}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label className="font-medium text-slate-700 cursor-pointer" htmlFor="ftb-switch">First-Time Home Buyer</Label>
+                  <Switch 
+                    id="ftb-switch"
+                    checked={isFirstTimeBuyer}
+                    onCheckedChange={setIsFirstTimeBuyer}
+                  />
+                </div>
+
+                {/* Tax Breakdown */}
+                <div className="pt-2 border-t border-slate-200 space-y-2 text-sm">
+                  <div className="flex justify-between text-slate-600">
+                    <span>Ontario Tax</span>
+                    <span>{new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(rawOntarioLTT)}</span>
+                  </div>
+                  {isFirstTimeBuyer && rawOntarioLTT > 0 && (
+                     <div className="flex justify-between text-emerald-600">
+                       <span>Ontario Rebate</span>
+                       <span>-{new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(ontarioRebate)}</span>
+                     </div>
+                  )}
+                  
+                  {isToronto && (
+                    <>
+                      <div className="flex justify-between text-slate-600 mt-2">
+                        <span>Toronto Tax</span>
+                        <span>{new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(rawTorontoLTT)}</span>
+                      </div>
+                      {isFirstTimeBuyer && rawTorontoLTT > 0 && (
+                        <div className="flex justify-between text-emerald-600">
+                          <span>Toronto Rebate</span>
+                          <span>-{new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(torontoRebate)}</span>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -408,50 +473,7 @@ export default function AffordabilityCalculator() {
                 </div>
             </div>
 
-            {/* Location & Buyer Status */}
-            <div className="bg-slate-50 p-4 rounded-xl space-y-4 border border-slate-100">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Label className="font-medium text-slate-700 cursor-pointer" htmlFor="toronto-switch">Property is in Toronto</Label>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger>
-                         <Info className="w-4 h-4 text-slate-400" />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Toronto has an additional Municipal Land Transfer Tax.</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-                <Switch 
-                  id="toronto-switch"
-                  checked={isToronto}
-                  onCheckedChange={setIsToronto}
-                />
-              </div>
 
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Label className="font-medium text-slate-700 cursor-pointer" htmlFor="ftb-switch">First-Time Home Buyer</Label>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger>
-                         <Info className="w-4 h-4 text-slate-400" />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Eligible for LTT rebates (up to $4,000 Ontario + $4,475 Toronto).</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-                <Switch 
-                  id="ftb-switch"
-                  checked={isFirstTimeBuyer}
-                  onCheckedChange={setIsFirstTimeBuyer}
-                />
-              </div>
-            </div>
 
           </CardContent>
         </Card>
