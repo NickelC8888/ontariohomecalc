@@ -73,6 +73,7 @@ export default function AffordabilityCalculator() {
   // Calculate CMHC Insurance
   const calculateCMHC = () => {
     if (mortgageInsuranceType === 'manual') return manualMortgageInsurance;
+    if (price >= 1000000) return 0; // No CMHC for properties >= 1M
     if (downPaymentPercent >= 20) return 0;
     
     let premiumRate = 0.04; // Default 4% for 5-9.99%
@@ -509,7 +510,7 @@ export default function AffordabilityCalculator() {
                                     <Info className="w-4 h-4 text-slate-400" />
                                 </TooltipTrigger>
                                 <TooltipContent>
-                                    <p>Required for down payments under 20%.</p>
+                                    <p>Required for down payments under 20%. Only available for properties under $1 Million.</p>
                                 </TooltipContent>
                                 </Tooltip>
                             </TooltipProvider>
