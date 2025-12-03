@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -21,7 +21,6 @@ import {
 } from "@/components/ui/table";
 import { Trash2, Building, DollarSign, Calendar, MapPin, ArrowRightLeft, CheckCircle2 } from 'lucide-react';
 import { format } from 'date-fns';
-import React, { useState } from 'react';
 
 export default function SavedScenarios() {
   const [selectedIds, setSelectedIds] = useState([]);
