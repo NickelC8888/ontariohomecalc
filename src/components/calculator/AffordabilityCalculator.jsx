@@ -142,19 +142,26 @@ export default function AffordabilityCalculator() {
               <div className="flex justify-between items-end">
                 <Label className="text-base font-semibold text-slate-700">
                   Down Payment 
-                  <span className="ml-2 text-emerald-600 font-bold">({downPaymentPercent}%)</span>
+                  <span className="ml-2 text-emerald-600 font-bold">({downPaymentPercent.toFixed(1)}%)</span>
                 </Label>
-                <div className="flex gap-4 items-center">
-                  <span className="text-slate-600 font-medium">
-                    ${new Intl.NumberFormat('en-CA').format(downPaymentAmount)}
-                  </span>
+                <div className="relative w-40">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span>
+                  <Input 
+                    type="number" 
+                    value={Math.round(downPaymentAmount)} 
+                    onChange={(e) => {
+                      const val = Number(e.target.value);
+                      setDownPaymentPercent((val / price) * 100);
+                    }}
+                    className="pl-7 text-right font-semibold text-lg"
+                  />
                 </div>
               </div>
               <Slider 
                 value={[downPaymentPercent]} 
                 min={5} 
                 max={100} 
-                step={5} 
+                step={1} 
                 onValueChange={(val) => setDownPaymentPercent(val[0])}
                 className="py-2"
               />
@@ -164,7 +171,7 @@ export default function AffordabilityCalculator() {
                      key={pct}
                      onClick={() => setDownPaymentPercent(pct)}
                      className={`px-3 py-1 text-xs rounded-full font-medium transition-colors ${
-                       downPaymentPercent === pct 
+                       Math.round(downPaymentPercent) === pct 
                        ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' 
                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                      }`}
@@ -204,6 +211,42 @@ export default function AffordabilityCalculator() {
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+
+            {/* Closing Costs */}
+             <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                   <div className="flex items-center gap-2">
+                    <Label className="text-slate-700 font-medium">Est. Closing Costs</Label>
+                    <TooltipProvider>
+                        <Tooltip>
+                        <TooltipTrigger>
+                            <Info className="w-4 h-4 text-slate-400" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>Legal fees, title insurance, home inspection, etc.</p>
+                        </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+                   </div>
+                   <div className="relative w-32">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span>
+                    <Input 
+                        type="number" 
+                        value={closingCosts} 
+                        onChange={(e) => setClosingCosts(Number(e.target.value))}
+                        className="pl-7 text-right font-semibold"
+                    />
+                   </div>
+                </div>
+                <Slider 
+                    value={[closingCosts]} 
+                    min={0} 
+                    max={5000} 
+                    step={100} 
+                    onValueChange={(val) => setClosingCosts(val[0])}
+                    className="py-2"
+                />
             </div>
 
             {/* Location & Buyer Status */}
