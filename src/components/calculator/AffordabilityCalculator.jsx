@@ -17,28 +17,57 @@ export default function AffordabilityCalculator() {
   // State
   const [price, setPrice] = useState(750000);
   const [downPaymentPercent, setDownPaymentPercent] = useState(20);
-  const [interestRate, setInterestRate] = useState(4.5);
+  const [interestRate, setInterestRate] = useState(4.79);
   const [amortization, setAmortization] = useState(25);
+  const [mortgageTerm, setMortgageTerm] = useState(5);
+  const [mortgageType, setMortgageType] = useState("fixed");
   const [isToronto, setIsToronto] = useState(true);
   const [isFirstTimeBuyer, setIsFirstTimeBuyer] = useState(true);
-  const [closingCosts, setClosingCosts] = useState(2000); // Default estimation for legal/misc
+  
+  // Detailed Closing Costs
+  const [closingCostBreakdown, setClosingCostBreakdown] = useState({
+    legal: 1500,
+    appraisal: 300,
+    inspection: 500
+  });
   
   // Save Scenario State
   const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
   const [scenarioName, setScenarioName] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
+  // Constants & Bank Data
+  const BANK_RATES = [
+    { name: "RBC", rate: 4.84, type: "fixed", logo: "Bg-blue-600" },
+    { name: "TD", rate: 4.99, type: "fixed", logo: "Bg-green-600" },
+    { name: "Scotiabank", rate: 5.09, type: "fixed", logo: "Bg-red-600" },
+    { name: "BMO", rate: 4.79, type: "fixed", logo: "Bg-blue-800" }
+  ];
+
   // Derived Values
+  const totalClosingCosts = Object.values(closingCostBreakdown).reduce((a, b) => a + b, 0);
   const downPaymentAmount = price * (downPaymentPercent / 100);
-  const mortgageAmount = price - downPaymentAmount;
+  
+  // Calculate CMHC Insurance
+  const calculateCMHC = () => {
+    if (downPaymentPercent >= 20) return 0;
+    let premiumRate = 0.04; // Default 4% for 5-9.99%
+    if (downPaymentPercent >= 15) premiumRate = 0.028;
+    else if (downPaymentPercent >= 10) premiumRate = 0.031;
+    
+    return (price - downPaymentAmount) * premiumRate;
+  };
+
+  const mortgageInsurance = calculateCMHC();
+  const totalMortgageAmount = (price - downPaymentAmount) + mortgageInsurance;
 
   // Calculation Functions
   const calculateMortgagePayment = () => {
     const monthlyRate = interestRate / 100 / 12;
     const numberOfPayments = amortization * 12;
-    if (interestRate === 0) return mortgageAmount / numberOfPayments;
+    if (interestRate === 0) return totalMortgageAmount / numberOfPayments;
     
-    return (mortgageAmount * monthlyRate * Math.pow(1 + monthlyRate, numberOfPayments)) / 
+    return (totalMortgageAmount * monthlyRate * Math.pow(1 + monthlyRate, numberOfPayments)) / 
            (Math.pow(1 + monthlyRate, numberOfPayments) - 1);
   };
 
@@ -102,12 +131,16 @@ export default function AffordabilityCalculator() {
   // Results
   const monthlyPayment = calculateMortgagePayment();
   const totalLTT = calculateTotalLTT();
-  const totalUpfront = downPaymentAmount + totalLTT + closingCosts;
+  const totalUpfront = downPaymentAmount + totalLTT + totalClosingCosts;
 
   // Handlers
   const handlePriceChange = (e) => {
     const val = Number(e.target.value);
     setPrice(val);
+  };
+  
+  const handleCostChange = (key, val) => {
+    setClosingCostBreakdown(prev => ({ ...prev, [key]: Number(val) }));
   };
 
   const handleSaveScenario = async () => {
@@ -121,9 +154,13 @@ export default function AffordabilityCalculator() {
         down_payment_percent: downPaymentPercent,
         interest_rate: interestRate,
         amortization: amortization,
+        mortgage_term: mortgageTerm,
+        mortgage_type: mortgageType,
         is_toronto: isToronto,
         is_first_time_buyer: isFirstTimeBuyer,
-        closing_costs: closingCosts,
+        closing_costs: totalClosingCosts,
+        closing_costs_breakdown: closingCostBreakdown,
+        mortgage_insurance: mortgageInsurance,
         monthly_payment: monthlyPayment,
         total_ltt: totalLTT,
         total_cash_needed: totalUpfront
@@ -220,71 +257,155 @@ export default function AffordabilityCalculator() {
               </div>
             </div>
 
-            {/* Interest Rate & Amortization */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-3">
-                <Label className="text-slate-700 font-medium">Interest Rate (%)</Label>
-                <div className="relative">
-                  <Input 
-                    type="number" 
-                    value={interestRate} 
-                    onChange={(e) => setInterestRate(Number(e.target.value))}
-                    step="0.1"
-                    className="font-semibold pr-8"
-                  />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500">%</span>
+            {/* Mortgage Details */}
+            <div className="space-y-4">
+                <Label className="text-base font-semibold text-slate-700">Mortgage Details</Label>
+                
+                {/* Rate Selection */}
+                <div className="grid grid-cols-4 gap-2 mb-4">
+                  {BANK_RATES.map((bank) => (
+                    <button
+                      key={bank.name}
+                      onClick={() => {
+                        setInterestRate(bank.rate);
+                        setMortgageType(bank.type);
+                      }}
+                      className={`p-2 rounded-lg border text-center transition-all ${
+                        interestRate === bank.rate
+                          ? 'border-emerald-500 bg-emerald-50 ring-1 ring-emerald-500' 
+                          : 'border-slate-200 hover:border-emerald-200 hover:bg-slate-50'
+                      }`}
+                    >
+                      <div className="text-xs font-bold text-slate-900">{bank.name}</div>
+                      <div className="text-lg font-bold text-emerald-600">{bank.rate}%</div>
+                      <div className="text-[10px] text-slate-500 uppercase">{bank.type}</div>
+                    </button>
+                  ))}
                 </div>
-              </div>
 
-              <div className="space-y-3">
-                <Label className="text-slate-700 font-medium">Amortization Period</Label>
-                <Select value={String(amortization)} onValueChange={(val) => setAmortization(Number(val))}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select years" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {[15, 20, 25, 30].map(year => (
-                      <SelectItem key={year} value={String(year)}>{year} Years</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                        <Label className="text-slate-700 font-medium">Interest Rate (%)</Label>
+                        <div className="relative">
+                        <Input 
+                            type="number" 
+                            value={interestRate} 
+                            onChange={(e) => setInterestRate(Number(e.target.value))}
+                            step="0.01"
+                            className="font-semibold pr-8"
+                        />
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500">%</span>
+                        </div>
+                    </div>
+
+                    <div className="space-y-3">
+                        <Label className="text-slate-700 font-medium">Amortization</Label>
+                        <Select value={String(amortization)} onValueChange={(val) => setAmortization(Number(val))}>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select years" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {[15, 20, 25, 30].map(year => (
+                            <SelectItem key={year} value={String(year)}>{year} Years</SelectItem>
+                            ))}
+                        </SelectContent>
+                        </Select>
+                    </div>
+
+                    <div className="space-y-3">
+                        <Label className="text-slate-700 font-medium">Term</Label>
+                        <Select value={String(mortgageTerm)} onValueChange={(val) => setMortgageTerm(Number(val))}>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select term" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {[1, 2, 3, 4, 5, 7, 10].map(year => (
+                            <SelectItem key={year} value={String(year)}>{year} Years</SelectItem>
+                            ))}
+                        </SelectContent>
+                        </Select>
+                    </div>
+
+                    <div className="space-y-3">
+                        <Label className="text-slate-700 font-medium">Type</Label>
+                        <div className="flex p-1 bg-slate-100 rounded-lg">
+                            {['fixed', 'variable'].map((type) => (
+                                <button
+                                    key={type}
+                                    onClick={() => setMortgageType(type)}
+                                    className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-all capitalize ${
+                                        mortgageType === type 
+                                        ? 'bg-white text-slate-900 shadow-sm' 
+                                        : 'text-slate-500 hover:text-slate-700'
+                                    }`}
+                                >
+                                    {type}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            {/* Closing Costs */}
-             <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                   <div className="flex items-center gap-2">
-                    <Label className="text-slate-700 font-medium">Est. Closing Costs</Label>
-                    <TooltipProvider>
-                        <Tooltip>
-                        <TooltipTrigger>
-                            <Info className="w-4 h-4 text-slate-400" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            <p>Legal fees, title insurance, home inspection, etc.</p>
-                        </TooltipContent>
-                        </Tooltip>
-                    </TooltipProvider>
-                   </div>
-                   <div className="relative w-32">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span>
-                    <Input 
-                        type="number" 
-                        value={closingCosts} 
-                        onChange={(e) => setClosingCosts(Number(e.target.value))}
-                        className="pl-7 text-right font-semibold"
-                    />
-                   </div>
+            {/* Closing Costs Breakdown */}
+             <div className="space-y-4">
+                <div className="flex justify-between items-end">
+                    <div className="flex items-center gap-2">
+                        <Label className="text-base font-semibold text-slate-700">Closing Costs</Label>
+                        <TooltipProvider>
+                            <Tooltip>
+                            <TooltipTrigger>
+                                <Info className="w-4 h-4 text-slate-400" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>Detailed breakdown of estimated closing costs.</p>
+                            </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                    </div>
+                    <span className="font-bold text-slate-900 text-lg">
+                        {new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(totalClosingCosts)}
+                    </span>
                 </div>
-                <Slider 
-                    value={[closingCosts]} 
-                    min={0} 
-                    max={5000} 
-                    step={100} 
-                    onValueChange={(val) => setClosingCosts(val[0])}
-                    className="py-2"
-                />
+                
+                <div className="grid grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                        <Label className="text-xs text-slate-500">Legal Fees</Label>
+                        <div className="relative">
+                            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 text-xs">$</span>
+                            <Input 
+                                type="number" 
+                                value={closingCostBreakdown.legal} 
+                                onChange={(e) => handleCostChange('legal', e.target.value)}
+                                className="pl-5 h-9 text-sm"
+                            />
+                        </div>
+                    </div>
+                    <div className="space-y-2">
+                        <Label className="text-xs text-slate-500">Appraisal</Label>
+                        <div className="relative">
+                            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 text-xs">$</span>
+                            <Input 
+                                type="number" 
+                                value={closingCostBreakdown.appraisal} 
+                                onChange={(e) => handleCostChange('appraisal', e.target.value)}
+                                className="pl-5 h-9 text-sm"
+                            />
+                        </div>
+                    </div>
+                    <div className="space-y-2">
+                        <Label className="text-xs text-slate-500">Inspection</Label>
+                        <div className="relative">
+                            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 text-xs">$</span>
+                            <Input 
+                                type="number" 
+                                value={closingCostBreakdown.inspection} 
+                                onChange={(e) => handleCostChange('inspection', e.target.value)}
+                                className="pl-5 h-9 text-sm"
+                            />
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {/* Location & Buyer Status */}
@@ -390,10 +511,11 @@ export default function AffordabilityCalculator() {
             mortgagePayment={monthlyPayment}
             landTransferTax={totalLTT}
             totalUpfront={totalUpfront}
-            mortgageAmount={mortgageAmount}
+            mortgageAmount={totalMortgageAmount}
             downPaymentAmount={downPaymentAmount}
-            closingCosts={closingCosts}
+            closingCosts={totalClosingCosts}
             isFirstTimeBuyer={isFirstTimeBuyer}
+            mortgageInsurance={mortgageInsurance}
           />
         </div>
       </div>

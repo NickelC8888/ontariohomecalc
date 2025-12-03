@@ -137,9 +137,15 @@ export default function SavedScenarios() {
                         <span className="font-medium">{formatCurrency(scenario.total_cash_needed)}</span>
                     </div>
                     <div className="flex justify-between">
-                        <span className="text-slate-600">Interest Rate</span>
-                        <span className="font-medium">{scenario.interest_rate}%</span>
+                        <span className="text-slate-600">Rate / Term</span>
+                        <span className="font-medium">{scenario.interest_rate}% ({scenario.mortgage_term}yr {scenario.mortgage_type})</span>
                     </div>
+                    {scenario.mortgage_insurance > 0 && (
+                         <div className="flex justify-between">
+                            <span className="text-slate-600">CMHC Insurance</span>
+                            <span className="font-medium text-emerald-600">{formatCurrency(scenario.mortgage_insurance)}</span>
+                        </div>
+                    )}
                 </div>
               </CardContent>
               <CardFooter className="pt-2 border-t border-slate-100 mt-auto flex justify-end">

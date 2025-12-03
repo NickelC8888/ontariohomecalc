@@ -12,13 +12,14 @@ export default function ResultsDisplay({
   mortgageAmount,
   downPaymentAmount,
   closingCosts,
-  isFirstTimeBuyer
+  isFirstTimeBuyer,
+  mortgageInsurance
 }) {
   
   const upfrontData = [
     { name: 'Down Payment', value: downPaymentAmount, color: '#059669' }, // Emerald 600
     { name: 'Land Transfer Tax', value: landTransferTax, color: '#0891b2' }, // Cyan 600
-    { name: 'Legal & Closing', value: closingCosts, color: '#6366f1' }, // Indigo 500
+    { name: 'Closing Costs', value: closingCosts, color: '#6366f1' }, // Indigo 500
   ];
 
   const formatCurrency = (val) => 
@@ -41,8 +42,11 @@ export default function ResultsDisplay({
           
           <div className="grid grid-cols-2 gap-4 text-sm border-t border-emerald-800 pt-4">
             <div>
-              <p className="text-emerald-300">Mortgage Amount</p>
+              <p className="text-emerald-300">Total Mortgage</p>
               <p className="font-semibold text-lg">{formatCurrency(mortgageAmount)}</p>
+              {mortgageInsurance > 0 && (
+                <p className="text-xs text-emerald-400">(Incl. {formatCurrency(mortgageInsurance)} CMHC)</p>
+              )}
             </div>
             <div>
               <p className="text-emerald-300">Interest Cost (5yr)</p>
