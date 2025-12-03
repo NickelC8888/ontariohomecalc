@@ -324,7 +324,12 @@ export default function AffordabilityCalculator() {
 
             {/* Mortgage Details */}
             <div className="space-y-4">
-                <Label className="text-base font-semibold text-slate-700">Mortgage Details</Label>
+                <div className="flex justify-between items-end">
+                    <Label className="text-base font-semibold text-slate-700">Mortgage Details</Label>
+                    <span className="font-bold text-slate-900 text-lg">
+                        {new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(totalMortgageAmount)}
+                    </span>
+                </div>
                 
                 {/* Rate Selection */}
                 <div className="grid grid-cols-4 gap-2 mb-4">
