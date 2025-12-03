@@ -21,6 +21,7 @@ export default function AffordabilityCalculator() {
   const [amortization, setAmortization] = useState(25);
   const [mortgageTerm, setMortgageTerm] = useState(5);
   const [mortgageType, setMortgageType] = useState("fixed");
+  const [rateMode, setRateMode] = useState("lender"); // 'lender' or 'custom'
   const [lenderName, setLenderName] = useState("BMO");
   const [isToronto, setIsToronto] = useState(true);
   const [isFirstTimeBuyer, setIsFirstTimeBuyer] = useState(true);
@@ -43,6 +44,7 @@ export default function AffordabilityCalculator() {
 
   // Constants & Bank Data
   const BANK_RATES = [
+    // Fixed Rates
     { name: "RBC", rate: 4.84, type: "fixed" },
     { name: "TD", rate: 4.99, type: "fixed" },
     { name: "Scotiabank", rate: 5.09, type: "fixed" },
@@ -50,7 +52,16 @@ export default function AffordabilityCalculator() {
     { name: "CIBC", rate: 4.89, type: "fixed" },
     { name: "National Bank", rate: 4.94, type: "fixed" },
     { name: "EQ Bank", rate: 4.69, type: "fixed" },
-    { name: "Tangerine", rate: 4.74, type: "fixed" }
+    { name: "Tangerine", rate: 4.74, type: "fixed" },
+    // Variable Rates
+    { name: "RBC", rate: 6.35, type: "variable" },
+    { name: "TD", rate: 6.45, type: "variable" },
+    { name: "Scotiabank", rate: 6.50, type: "variable" },
+    { name: "BMO", rate: 6.30, type: "variable" },
+    { name: "CIBC", rate: 6.40, type: "variable" },
+    { name: "National Bank", rate: 6.45, type: "variable" },
+    { name: "EQ Bank", rate: 6.10, type: "variable" },
+    { name: "Tangerine", rate: 6.15, type: "variable" }
   ];
 
   const STRESS_TEST_BENCHMARK = 5.25;
@@ -356,54 +367,108 @@ export default function AffordabilityCalculator() {
                     </span>
                 </div>
 
-                {/* Lender Selection */}
+                {/* Mortgage Type */}
                 <div className="space-y-3">
-                    <Label className="text-slate-700 font-medium">Lender</Label>
-                    <Select 
-                        value={lenderName} 
-                        onValueChange={(val) => {
-                            setLenderName(val);
-                            const bank = BANK_RATES.find(b => b.name === val);
-                            if (bank) {
-                                setInterestRate(bank.rate);
-                                setMortgageType(bank.type);
-                            }
-                        }}
-                    >
-                        <SelectTrigger>
-                            <SelectValue placeholder="Select a lender" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="Custom">Custom Rate / Other Lender</SelectItem>
-                            {BANK_RATES.map(bank => (
-                                <SelectItem key={bank.name} value={bank.name}>
-                                    {bank.name} - {bank.rate}% ({bank.type})
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                    <Label className="text-slate-700 font-medium">Mortgage Type</Label>
+                    <div className="flex p-1 bg-slate-100 rounded-lg">
+                        {['fixed', 'variable'].map((type) => (
+                            <button
+                                key={type}
+                                onClick={() => {
+                                    setMortgageType(type);
+                                    // Reset lender if current lender doesn't support new type (optional, but good UX)
+                                    if (rateMode === 'lender') {
+                                        const firstMatch = BANK_RATES.find(b => b.type === type);
+                                        if (firstMatch) {
+                                            setLenderName(firstMatch.name);
+                                            setInterestRate(firstMatch.rate);
+                                        }
+                                    }
+                                }}
+                                className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-all capitalize ${
+                                    mortgageType === type 
+                                    ? 'bg-white text-slate-900 shadow-sm' 
+                                    : 'text-slate-500 hover:text-slate-700'
+                                }`}
+                            >
+                                {type}
+                            </button>
+                        ))}
+                    </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-3">
-                        <Label className="text-slate-700 font-medium">Interest Rate (%)</Label>
-                        <div className="relative">
-                        <Input 
-                            type="number" 
-                            value={interestRate} 
-                            onChange={(e) => {
-                                setInterestRate(Number(e.target.value));
-                                if (!BANK_RATES.find(b => b.rate === Number(e.target.value))) {
-                                    setLenderName("Custom");
+                {/* Rate Source Selection */}
+                <div className="space-y-3">
+                     <div className="flex justify-between items-center">
+                        <Label className="text-slate-700 font-medium">Interest Rate Source</Label>
+                        <div className="flex bg-slate-100 rounded-lg p-0.5">
+                            <button
+                                onClick={() => {
+                                    setRateMode('lender');
+                                    // Re-apply current selected lender rate for current type
+                                    const match = BANK_RATES.find(b => b.name === lenderName && b.type === mortgageType) 
+                                        || BANK_RATES.find(b => b.type === mortgageType);
+                                    if (match) {
+                                        setLenderName(match.name);
+                                        setInterestRate(match.rate);
+                                    }
+                                }}
+                                className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${rateMode === 'lender' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500'}`}
+                            >
+                                Lender
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setRateMode('custom');
+                                    setLenderName('Custom');
+                                }}
+                                className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${rateMode === 'custom' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500'}`}
+                            >
+                                Custom
+                            </button>
+                        </div>
+                     </div>
+
+                     {rateMode === 'lender' ? (
+                        <Select 
+                            value={lenderName} 
+                            onValueChange={(val) => {
+                                setLenderName(val);
+                                const bank = BANK_RATES.find(b => b.name === val && b.type === mortgageType);
+                                if (bank) {
+                                    setInterestRate(bank.rate);
                                 }
                             }}
-                            step="0.01"
-                            className="font-semibold pr-8"
-                        />
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500">%</span>
+                        >
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select a lender" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {BANK_RATES
+                                    .filter(bank => bank.type === mortgageType)
+                                    .map(bank => (
+                                    <SelectItem key={bank.name} value={bank.name}>
+                                        {bank.name} - {bank.rate}%
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                     ) : (
+                        <div className="relative">
+                            <Input 
+                                type="number" 
+                                value={interestRate} 
+                                onChange={(e) => setInterestRate(Number(e.target.value))}
+                                step="0.01"
+                                className="font-semibold pr-8"
+                            />
+                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500">%</span>
                         </div>
-                    </div>
+                     )}
+                </div>
 
+                {/* Amortization & Term */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-3">
                         <Label className="text-slate-700 font-medium">Amortization</Label>
                         <Select value={String(amortization)} onValueChange={(val) => setAmortization(Number(val))}>
@@ -430,25 +495,6 @@ export default function AffordabilityCalculator() {
                             ))}
                         </SelectContent>
                         </Select>
-                    </div>
-
-                    <div className="space-y-3">
-                        <Label className="text-slate-700 font-medium">Type</Label>
-                        <div className="flex p-1 bg-slate-100 rounded-lg">
-                            {['fixed', 'variable'].map((type) => (
-                                <button
-                                    key={type}
-                                    onClick={() => setMortgageType(type)}
-                                    className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-all capitalize ${
-                                        mortgageType === type 
-                                        ? 'bg-white text-slate-900 shadow-sm' 
-                                        : 'text-slate-500 hover:text-slate-700'
-                                    }`}
-                                >
-                                    {type}
-                                </button>
-                            ))}
-                        </div>
                     </div>
                 </div>
 
