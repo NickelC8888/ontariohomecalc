@@ -401,7 +401,10 @@ export default function AffordabilityCalculator() {
                 {/* Rate Source Selection */}
                 <div className="space-y-3">
                      <div className="flex justify-between items-center">
-                        <Label className="text-slate-700 font-medium">Interest Rate Source</Label>
+                        <div>
+                            <Label className="text-slate-700 font-medium">Interest Rate Source</Label>
+                            <p className="text-xs text-slate-500 mt-0.5">Best 4 Rates Shown</p>
+                        </div>
                         <div className="flex bg-slate-100 rounded-lg p-0.5">
                             <button
                                 onClick={() => {
