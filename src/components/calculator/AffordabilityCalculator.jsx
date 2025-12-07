@@ -431,29 +431,29 @@ export default function AffordabilityCalculator() {
                      </div>
 
                      {rateMode === 'lender' ? (
-                        <Select 
-                            value={lenderName} 
-                            onValueChange={(val) => {
-                                setLenderName(val);
-                                const bank = BANK_RATES.find(b => b.name === val && b.type === mortgageType);
-                                if (bank) {
-                                    setInterestRate(bank.rate);
-                                }
-                            }}
-                        >
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select a lender" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {BANK_RATES
-                                    .filter(bank => bank.type === mortgageType)
-                                    .map(bank => (
-                                    <SelectItem key={bank.name} value={bank.name}>
-                                        {bank.name} - {bank.rate}%
-                                    </SelectItem>
+                        <div className="grid grid-cols-2 gap-3">
+                            {BANK_RATES
+                                .filter(bank => bank.type === mortgageType)
+                                .sort((a, b) => a.rate - b.rate)
+                                .slice(0, 4)
+                                .map((bank) => (
+                                    <button
+                                        key={bank.name}
+                                        onClick={() => {
+                                            setLenderName(bank.name);
+                                            setInterestRate(bank.rate);
+                                        }}
+                                        className={`p-3 rounded-lg border-2 text-left transition-all ${
+                                            lenderName === bank.name
+                                                ? 'border-emerald-500 bg-emerald-50 shadow-md'
+                                                : 'border-slate-200 bg-white hover:border-slate-300 hover:shadow'
+                                        }`}
+                                    >
+                                        <div className="font-bold text-slate-900">{bank.name}</div>
+                                        <div className="text-2xl font-bold text-emerald-600 mt-1">{bank.rate}%</div>
+                                    </button>
                                 ))}
-                            </SelectContent>
-                        </Select>
+                        </div>
                      ) : (
                         <div className="relative">
                             <Input 
