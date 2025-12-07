@@ -152,7 +152,16 @@ export default function ResultsDisplay({
                 </div>
                 <span className="font-bold text-slate-900">{formatCurrency(closingCosts)}</span>
               </div>
+              </div>
 
+              <div className="pt-3 border-t border-slate-200 flex justify-between items-center px-2">
+              <span className="font-semibold text-slate-700">Subtotal (User Provided)</span>
+              <span className="font-bold text-slate-900 text-lg">
+                {formatCurrency(remainingDownPayment + landTransferTax + closingCosts)}
+              </span>
+              </div>
+
+              <div className="space-y-3 pt-3">
               <div className="flex justify-between items-center p-2 bg-emerald-50 rounded-lg transition-colors border border-emerald-100">
                 <div className="flex flex-col">
                     <span className="text-slate-700 font-medium">Mortgage</span>
