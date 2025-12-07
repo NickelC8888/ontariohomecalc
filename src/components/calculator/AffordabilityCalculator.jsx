@@ -403,7 +403,9 @@ export default function AffordabilityCalculator() {
                      <div className="flex justify-between items-center">
                         <div>
                             <Label className="text-slate-700 font-medium">Interest Rate Source</Label>
-                            <p className="text-xs text-slate-500 mt-0.5">Best 4 Rates Shown</p>
+                            <p className="text-xs text-slate-500 mt-0.5">
+                                {rateMode === 'lender' ? 'Lowest Competitive Rates Shown' : 'Input Your Own Interest Rate'}
+                            </p>
                         </div>
                         <div className="flex bg-slate-100 rounded-lg p-0.5">
                             <button
