@@ -334,7 +334,7 @@ export default function AffordabilityCalculator() {
               
               <div className="bg-slate-50 p-4 rounded-xl space-y-4 border border-slate-100">
                 <div className="flex items-center justify-between">
-                  <Label className="font-medium text-slate-700 cursor-pointer" htmlFor="toronto-switch">Property is in Toronto</Label>
+                  <Label className="font-medium text-slate-700 cursor-pointer" htmlFor="toronto-switch">Is the Property in the City of Toronto?</Label>
                   <Switch 
                     id="toronto-switch"
                     checked={isToronto}
@@ -342,7 +342,7 @@ export default function AffordabilityCalculator() {
                   />
                 </div>
                 <div className="flex items-center justify-between">
-                  <Label className="font-medium text-slate-700 cursor-pointer" htmlFor="ftb-switch">First-Time Home Buyer</Label>
+                  <Label className="font-medium text-slate-700 cursor-pointer" htmlFor="ftb-switch">Are you a First-Time Home Buyer?</Label>
                   <Switch 
                     id="ftb-switch"
                     checked={isFirstTimeBuyer}
@@ -353,7 +353,7 @@ export default function AffordabilityCalculator() {
                 {/* Tax Breakdown */}
                 <div className="pt-2 border-t border-slate-200 space-y-2 text-sm">
                   <div className="flex justify-between text-slate-600">
-                    <span>Ontario Tax</span>
+                    <span>Ontario Land Transfer Tax</span>
                     <span>{new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(rawOntarioLTT)}</span>
                   </div>
                   {isFirstTimeBuyer && rawOntarioLTT > 0 && (
@@ -362,11 +362,11 @@ export default function AffordabilityCalculator() {
                        <span>-{new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(ontarioRebate)}</span>
                      </div>
                   )}
-                  
+
                   {isToronto && (
                     <>
                       <div className="flex justify-between text-slate-600 mt-2">
-                        <span>Toronto Tax</span>
+                        <span>Toronto Land Transfer Tax</span>
                         <span>{new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(rawTorontoLTT)}</span>
                       </div>
                       {isFirstTimeBuyer && rawTorontoLTT > 0 && (
