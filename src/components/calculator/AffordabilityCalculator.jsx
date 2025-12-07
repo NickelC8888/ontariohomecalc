@@ -708,6 +708,7 @@ export default function AffordabilityCalculator() {
             totalUpfront={totalUpfront}
             mortgageAmount={totalMortgageAmount}
             downPaymentAmount={downPaymentAmount}
+            depositAmount={depositAmount}
             closingCosts={totalClosingCosts}
             isFirstTimeBuyer={isFirstTimeBuyer}
             mortgageInsurance={mortgageInsurance}

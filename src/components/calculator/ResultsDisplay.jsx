@@ -12,6 +12,7 @@ export default function ResultsDisplay({
   totalUpfront, 
   mortgageAmount,
   downPaymentAmount,
+  depositAmount,
   closingCosts,
   isFirstTimeBuyer,
   mortgageInsurance,
@@ -26,6 +27,7 @@ export default function ResultsDisplay({
   ];
 
   const mortgagePrincipal = propertyPrice - downPaymentAmount;
+  const remainingDownPayment = downPaymentAmount - depositAmount;
 
   const formatCurrency = (val) => 
     new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(val);
@@ -71,9 +73,23 @@ export default function ResultsDisplay({
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div className="flex justify-between items-center p-2">
-             <span className="text-slate-600">Down Payment</span>
-             <span className="font-bold">{formatCurrency(downPaymentAmount)}</span>
+          <div className="space-y-2">
+            <div className="flex justify-between items-center p-2">
+               <span className="text-slate-600 font-medium">Down Payment</span>
+               <span className="font-bold">{formatCurrency(downPaymentAmount)}</span>
+            </div>
+            {depositAmount > 0 && (
+              <div className="ml-6 space-y-1">
+                <div className="flex justify-between items-center text-sm">
+                   <span className="text-slate-500">Deposit Already Submitted</span>
+                   <span className="font-medium">{formatCurrency(depositAmount)}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                   <span className="text-slate-500">Remaining Downpayment Amount</span>
+                   <span className="font-medium">{formatCurrency(remainingDownPayment)}</span>
+                </div>
+              </div>
+            )}
           </div>
           <div className="flex justify-between items-center p-2 bg-slate-50 rounded-lg">
              <span className="text-slate-600">Mortgage Amount</span>
@@ -96,12 +112,26 @@ export default function ResultsDisplay({
         </CardHeader>
         <CardContent className="space-y-4">
            <div className="space-y-3">
-              <div className="flex justify-between items-center p-2 hover:bg-slate-50 rounded-lg transition-colors">
-                <div className="flex flex-col">
-                    <span className="text-slate-700 font-medium">Down Payment</span>
-                    <span className="text-xs text-slate-500">Provided by User</span>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center p-2 hover:bg-slate-50 rounded-lg transition-colors">
+                  <div className="flex flex-col">
+                      <span className="text-slate-700 font-medium">Down Payment</span>
+                      <span className="text-xs text-slate-500">Provided by User</span>
+                  </div>
+                  <span className="font-bold text-slate-900">{formatCurrency(remainingDownPayment)}</span>
                 </div>
-                <span className="font-bold text-slate-900">{formatCurrency(downPaymentAmount)}</span>
+                {depositAmount > 0 && (
+                  <div className="ml-6 space-y-1">
+                    <div className="flex justify-between items-center text-sm p-1">
+                       <span className="text-slate-500">Deposit Already Submitted</span>
+                       <span className="font-medium text-slate-700">{formatCurrency(depositAmount)}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm p-1">
+                       <span className="text-slate-500">Remaining Downpayment Amount</span>
+                       <span className="font-medium text-slate-700">{formatCurrency(remainingDownPayment)}</span>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="flex justify-between items-center p-2 hover:bg-slate-50 rounded-lg transition-colors">
