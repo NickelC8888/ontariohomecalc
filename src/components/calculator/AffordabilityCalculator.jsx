@@ -29,6 +29,9 @@ export default function AffordabilityCalculator() {
   // New Mortgage Insurance State
   const [mortgageInsuranceType, setMortgageInsuranceType] = useState("auto"); // 'auto' or 'manual'
   const [manualMortgageInsurance, setManualMortgageInsurance] = useState(0);
+  
+  // Deposit Amount
+  const [depositAmount, setDepositAmount] = useState(0);
 
   // Detailed Closing Costs
   const [closingCostBreakdown, setClosingCostBreakdown] = useState({
@@ -298,6 +301,25 @@ export default function AffordabilityCalculator() {
                      {pct}%
                    </button>
                  ))}
+              </div>
+            </div>
+
+            {/* Deposit Amount */}
+            <div className="space-y-4">
+              <div className="flex justify-between items-end">
+                <div>
+                  <Label className="text-base font-semibold text-slate-700">Deposit Amount</Label>
+                  <p className="text-xs text-slate-500 mt-1">Amount provided as deposit which is included in total Down Payment Amount</p>
+                </div>
+                <div className="relative w-40">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span>
+                  <Input 
+                    type="number" 
+                    value={depositAmount} 
+                    onChange={(e) => setDepositAmount(Number(e.target.value))}
+                    className="pl-7 text-right font-semibold text-lg"
+                  />
+                </div>
               </div>
             </div>
 
