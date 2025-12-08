@@ -134,17 +134,27 @@ export default function AffordabilityCalculator() {
     if (!isToronto) return 0;
     
     let tax = 0;
-    // Toronto LTT brackets (roughly mirror Ontario's but separate admin)
-    // 0.5% on first 55k
+    // Toronto LTT brackets (effective Jan 1, 2024)
+    // Up to $55,000: 0.5%
     if (price > 0) tax += Math.min(price, 55000) * 0.005;
-    // 1% on 55k-250k
+    // $55,000.01 to $250,000: 1.0%
     if (price > 55000) tax += (Math.min(price, 250000) - 55000) * 0.01;
-    // 1.5% on 250k-400k
+    // $250,000.01 to $400,000: 1.5%
     if (price > 250000) tax += (Math.min(price, 400000) - 250000) * 0.015;
-    // 2% on 400k-2M
+    // $400,000.01 to $2,000,000: 2.0%
     if (price > 400000) tax += (Math.min(price, 2000000) - 400000) * 0.02;
-    // 2.5% over 2M
-    if (price > 2000000) tax += (price - 2000000) * 0.025;
+    // $2,000,000.01 to $3,000,000: 3.5%
+    if (price > 2000000) tax += (Math.min(price, 3000000) - 2000000) * 0.035;
+    // $3,000,000.01 to $4,000,000: 4.5%
+    if (price > 3000000) tax += (Math.min(price, 4000000) - 3000000) * 0.045;
+    // $4,000,000.01 to $5,000,000: 5.5%
+    if (price > 4000000) tax += (Math.min(price, 5000000) - 4000000) * 0.055;
+    // $5,000,000.01 to $10,000,000: 6.5%
+    if (price > 5000000) tax += (Math.min(price, 10000000) - 5000000) * 0.065;
+    // $10,000,000.01 to $20,000,000: 7.5%
+    if (price > 10000000) tax += (Math.min(price, 20000000) - 10000000) * 0.075;
+    // Over $20,000,000: 8.5%
+    if (price > 20000000) tax += (price - 20000000) * 0.085;
 
     return tax;
   };
