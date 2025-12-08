@@ -358,7 +358,7 @@ export default function AffordabilityCalculator() {
                   </div>
                   {isFirstTimeBuyer && rawOntarioLTT > 0 && (
                      <div className="flex justify-between text-emerald-600">
-                       <span>Ontario Rebate</span>
+                       <span>Ontario Land Transfer Tax Eligible Rebate Amount</span>
                        <span>-{new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(ontarioRebate)}</span>
                      </div>
                   )}
