@@ -371,7 +371,7 @@ export default function AffordabilityCalculator() {
                       </div>
                       {isFirstTimeBuyer && rawTorontoLTT > 0 && (
                         <div className="flex justify-between text-emerald-600">
-                          <span>Toronto Rebate</span>
+                          <span>Toronto Land Transfer Tax Eligible Rebate Amount</span>
                           <span>-{new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(torontoRebate)}</span>
                         </div>
                       )}
