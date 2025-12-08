@@ -143,18 +143,18 @@ export default function AffordabilityCalculator() {
     if (price > 250000) tax += (Math.min(price, 400000) - 250000) * 0.015;
     // $400,000.01 to $2,000,000: 2.0%
     if (price > 400000) tax += (Math.min(price, 2000000) - 400000) * 0.02;
-    // $2,000,000.01 to $3,000,000: 3.5%
-    if (price > 2000000) tax += (Math.min(price, 3000000) - 2000000) * 0.035;
-    // $3,000,000.01 to $4,000,000: 4.5%
-    if (price > 3000000) tax += (Math.min(price, 4000000) - 3000000) * 0.045;
-    // $4,000,000.01 to $5,000,000: 5.5%
-    if (price > 4000000) tax += (Math.min(price, 5000000) - 4000000) * 0.055;
-    // $5,000,000.01 to $10,000,000: 6.5%
-    if (price > 5000000) tax += (Math.min(price, 10000000) - 5000000) * 0.065;
-    // $10,000,000.01 to $20,000,000: 7.5%
-    if (price > 10000000) tax += (Math.min(price, 20000000) - 10000000) * 0.075;
-    // Over $20,000,000: 8.5%
-    if (price > 20000000) tax += (price - 20000000) * 0.085;
+    // $2,000,000.01 to $3,000,000: 2.5%
+    if (price > 2000000) tax += (Math.min(price, 3000000) - 2000000) * 0.025;
+    // $3,000,000.01 to $4,000,000: 3.5%
+    if (price > 3000000) tax += (Math.min(price, 4000000) - 3000000) * 0.035;
+    // $4,000,000.01 to $5,000,000: 4.5%
+    if (price > 4000000) tax += (Math.min(price, 5000000) - 4000000) * 0.045;
+    // $5,000,000.01 to $10,000,000: 5.5%
+    if (price > 5000000) tax += (Math.min(price, 10000000) - 5000000) * 0.055;
+    // $10,000,000.01 to $20,000,000: 6.5%
+    if (price > 10000000) tax += (Math.min(price, 20000000) - 10000000) * 0.065;
+    // Over $20,000,000: 7.5%
+    if (price > 20000000) tax += (price - 20000000) * 0.075;
 
     return tax;
   };
@@ -454,12 +454,12 @@ export default function AffordabilityCalculator() {
                                 { range: '$55,001 - $250,000', rate: '1.0%', min: 55000, max: 250000, rateNum: 0.01 },
                                 { range: '$250,001 - $400,000', rate: '1.5%', min: 250000, max: 400000, rateNum: 0.015 },
                                 { range: '$400,001 - $2,000,000', rate: '2.0%', min: 400000, max: 2000000, rateNum: 0.02 },
-                                { range: '$2,000,001 - $3,000,000', rate: '3.5%', min: 2000000, max: 3000000, rateNum: 0.035 },
-                                { range: '$3,000,001 - $4,000,000', rate: '4.5%', min: 3000000, max: 4000000, rateNum: 0.045 },
-                                { range: '$4,000,001 - $5,000,000', rate: '5.5%', min: 4000000, max: 5000000, rateNum: 0.055 },
-                                { range: '$5,000,001 - $10,000,000', rate: '6.5%', min: 5000000, max: 10000000, rateNum: 0.065 },
-                                { range: '$10,000,001 - $20,000,000', rate: '7.5%', min: 10000000, max: 20000000, rateNum: 0.075 },
-                                { range: 'Over $20,000,000', rate: '8.5%', min: 20000000, max: Infinity, rateNum: 0.085 },
+                                { range: '$2,000,001 - $3,000,000', rate: '2.5%', min: 2000000, max: 3000000, rateNum: 0.025 },
+                                { range: '$3,000,001 - $4,000,000', rate: '3.5%', min: 3000000, max: 4000000, rateNum: 0.035 },
+                                { range: '$4,000,001 - $5,000,000', rate: '4.5%', min: 4000000, max: 5000000, rateNum: 0.045 },
+                                { range: '$5,000,001 - $10,000,000', rate: '5.5%', min: 5000000, max: 10000000, rateNum: 0.055 },
+                                { range: '$10,000,001 - $20,000,000', rate: '6.5%', min: 10000000, max: 20000000, rateNum: 0.065 },
+                                { range: 'Over $20,000,000', rate: '7.5%', min: 20000000, max: Infinity, rateNum: 0.075 },
                               ];
                               
                               return torontoBrackets.map((bracket, idx) => {
