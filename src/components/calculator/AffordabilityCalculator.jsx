@@ -388,6 +388,102 @@ export default function AffordabilityCalculator() {
                     </>
                   )}
                 </div>
+
+                {/* Bracket Breakdown Tables */}
+                <div className="pt-4 space-y-4">
+                  {/* Ontario Brackets */}
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-semibold text-slate-700 uppercase tracking-wide">Ontario Tax Brackets</h4>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-xs border border-slate-200 rounded-lg overflow-hidden">
+                        <thead className="bg-slate-100">
+                          <tr>
+                            <th className="text-left p-2 font-medium text-slate-600">Bracket</th>
+                            <th className="text-center p-2 font-medium text-slate-600">Rate</th>
+                            <th className="text-right p-2 font-medium text-slate-600">Amount Paid</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {(() => {
+                            const ontarioBrackets = [
+                              { range: 'Up to $55,000', rate: '0.5%', min: 0, max: 55000, rateNum: 0.005 },
+                              { range: '$55,001 - $250,000', rate: '1.0%', min: 55000, max: 250000, rateNum: 0.01 },
+                              { range: '$250,001 - $400,000', rate: '1.5%', min: 250000, max: 400000, rateNum: 0.015 },
+                              { range: '$400,001 - $2,000,000', rate: '2.0%', min: 400000, max: 2000000, rateNum: 0.02 },
+                              { range: 'Over $2,000,000', rate: '2.5%', min: 2000000, max: Infinity, rateNum: 0.025 },
+                            ];
+                            
+                            return ontarioBrackets.map((bracket, idx) => {
+                              const applicableAmount = Math.max(0, Math.min(price, bracket.max) - bracket.min);
+                              const taxInBracket = applicableAmount * bracket.rateNum;
+                              const isApplicable = price > bracket.min;
+                              
+                              return (
+                                <tr key={idx} className={`border-t border-slate-100 ${isApplicable ? 'bg-white' : 'bg-slate-50 text-slate-400'}`}>
+                                  <td className="p-2">{bracket.range}</td>
+                                  <td className="text-center p-2">{bracket.rate}</td>
+                                  <td className="text-right p-2 font-medium">
+                                    {isApplicable ? new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(taxInBracket) : '-'}
+                                  </td>
+                                </tr>
+                              );
+                            });
+                          })()}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* Toronto Brackets */}
+                  {isToronto && (
+                    <div className="space-y-2">
+                      <h4 className="text-xs font-semibold text-slate-700 uppercase tracking-wide">Toronto Tax Brackets</h4>
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-xs border border-slate-200 rounded-lg overflow-hidden">
+                          <thead className="bg-slate-100">
+                            <tr>
+                              <th className="text-left p-2 font-medium text-slate-600">Bracket</th>
+                              <th className="text-center p-2 font-medium text-slate-600">Rate</th>
+                              <th className="text-right p-2 font-medium text-slate-600">Amount Paid</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {(() => {
+                              const torontoBrackets = [
+                                { range: 'Up to $55,000', rate: '0.5%', min: 0, max: 55000, rateNum: 0.005 },
+                                { range: '$55,001 - $250,000', rate: '1.0%', min: 55000, max: 250000, rateNum: 0.01 },
+                                { range: '$250,001 - $400,000', rate: '1.5%', min: 250000, max: 400000, rateNum: 0.015 },
+                                { range: '$400,001 - $2,000,000', rate: '2.0%', min: 400000, max: 2000000, rateNum: 0.02 },
+                                { range: '$2,000,001 - $3,000,000', rate: '3.5%', min: 2000000, max: 3000000, rateNum: 0.035 },
+                                { range: '$3,000,001 - $4,000,000', rate: '4.5%', min: 3000000, max: 4000000, rateNum: 0.045 },
+                                { range: '$4,000,001 - $5,000,000', rate: '5.5%', min: 4000000, max: 5000000, rateNum: 0.055 },
+                                { range: '$5,000,001 - $10,000,000', rate: '6.5%', min: 5000000, max: 10000000, rateNum: 0.065 },
+                                { range: '$10,000,001 - $20,000,000', rate: '7.5%', min: 10000000, max: 20000000, rateNum: 0.075 },
+                                { range: 'Over $20,000,000', rate: '8.5%', min: 20000000, max: Infinity, rateNum: 0.085 },
+                              ];
+                              
+                              return torontoBrackets.map((bracket, idx) => {
+                                const applicableAmount = Math.max(0, Math.min(price, bracket.max) - bracket.min);
+                                const taxInBracket = applicableAmount * bracket.rateNum;
+                                const isApplicable = price > bracket.min;
+                                
+                                return (
+                                  <tr key={idx} className={`border-t border-slate-100 ${isApplicable ? 'bg-white' : 'bg-slate-50 text-slate-400'}`}>
+                                    <td className="p-2">{bracket.range}</td>
+                                    <td className="text-center p-2">{bracket.rate}</td>
+                                    <td className="text-right p-2 font-medium">
+                                      {isApplicable ? new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(taxInBracket) : '-'}
+                                    </td>
+                                  </tr>
+                                );
+                              });
+                            })()}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
