@@ -599,7 +599,7 @@ export default function AffordabilityCalculator() {
                               }}
                             >
                               <SelectTrigger>
-                                <SelectValue placeholder="Select a lender" />
+                                <SelectValue placeholder="Click to select additional Interest Rate and Source" />
                               </SelectTrigger>
                               <SelectContent>
                                 {BANK_RATES
