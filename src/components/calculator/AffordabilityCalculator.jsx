@@ -26,9 +26,7 @@ export default function AffordabilityCalculator() {
   const [isToronto, setIsToronto] = useState(true);
   const [isFirstTimeBuyer, setIsFirstTimeBuyer] = useState(true);
   
-  // New Mortgage Insurance State
-  const [mortgageInsuranceType, setMortgageInsuranceType] = useState("auto"); // 'auto' or 'manual'
-  const [manualMortgageInsurance, setManualMortgageInsurance] = useState(0);
+  // Mortgage Insurance is always auto-calculated
   
   // Deposit Amount
   const [depositAmount, setDepositAmount] = useState(0);
@@ -75,8 +73,7 @@ export default function AffordabilityCalculator() {
   
   // Calculate CMHC Insurance
   const calculateCMHC = () => {
-    if (mortgageInsuranceType === 'manual') return manualMortgageInsurance;
-    if (price >= 1000000) return 0; // No CMHC for properties >= 1M
+    if (price >= 1500000) return 0; // No CMHC for properties >= 1.5M
     if (downPaymentPercent >= 20) return 0;
     
     let premiumRate = 0.04; // Default 4% for 5-9.99%
@@ -176,6 +173,8 @@ export default function AffordabilityCalculator() {
 
   // Results
   const monthlyPayment = calculateMortgagePayment();
+  const monthlyMortgageCost = calculatePayment(price - downPaymentAmount, interestRate, amortization);
+  const monthlyCMHCCost = monthlyPayment - monthlyMortgageCost;
   
   // LTT Breakdown
   const rawOntarioLTT = calculateOntarioLTT(price);
@@ -210,7 +209,6 @@ export default function AffordabilityCalculator() {
         mortgage_term: mortgageTerm,
         mortgage_type: mortgageType,
         lender_name: lenderName,
-        mortgage_insurance_type: mortgageInsuranceType,
         is_toronto: isToronto,
         is_first_time_buyer: isFirstTimeBuyer,
         closing_costs: totalClosingCosts,
@@ -362,84 +360,16 @@ export default function AffordabilityCalculator() {
 
                 {/* Tax Breakdown */}
                 <div className="pt-2 border-t border-slate-200 space-y-2 text-sm">
-                  <div className="flex justify-between text-slate-600">
-                    <span>Ontario Land Transfer Tax</span>
-                    <span>{new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(rawOntarioLTT)}</span>
-                  </div>
-                  {isFirstTimeBuyer && rawOntarioLTT > 0 && (
-                     <div className="flex justify-between text-emerald-600">
-                       <span>Ontario Land Transfer Tax Eligible Rebate Amount</span>
-                       <span>-{new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(ontarioRebate)}</span>
-                     </div>
-                  )}
-
-                  {isToronto && (
-                    <>
-                      <div className="flex justify-between text-slate-600 mt-2">
-                        <span>Toronto Land Transfer Tax</span>
-                        <span>{new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(rawTorontoLTT)}</span>
-                      </div>
-                      {isFirstTimeBuyer && rawTorontoLTT > 0 && (
-                        <div className="flex justify-between text-emerald-600">
-                          <span>Toronto Land Transfer Tax Eligible Rebate Amount</span>
-                          <span>-{new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(torontoRebate)}</span>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="flex justify-between text-slate-600 cursor-help">
+                          <span className="underline decoration-dotted">Ontario Land Transfer Tax</span>
+                          <span>{new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(rawOntarioLTT)}</span>
                         </div>
-                      )}
-                    </>
-                  )}
-                </div>
-
-                {/* Bracket Breakdown Tables */}
-                <div className="pt-4 space-y-4">
-                  {/* Ontario Brackets */}
-                  <div className="space-y-2">
-                    <h4 className="text-xs font-semibold text-slate-700 uppercase tracking-wide">Ontario Tax Brackets</h4>
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-xs border border-slate-200 rounded-lg overflow-hidden">
-                        <thead className="bg-slate-100">
-                          <tr>
-                            <th className="text-left p-2 font-medium text-slate-600">Bracket</th>
-                            <th className="text-center p-2 font-medium text-slate-600">Rate</th>
-                            <th className="text-right p-2 font-medium text-slate-600">Amount Paid</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {(() => {
-                            const ontarioBrackets = [
-                              { range: 'Up to $55,000', rate: '0.5%', min: 0, max: 55000, rateNum: 0.005 },
-                              { range: '$55,001 - $250,000', rate: '1.0%', min: 55000, max: 250000, rateNum: 0.01 },
-                              { range: '$250,001 - $400,000', rate: '1.5%', min: 250000, max: 400000, rateNum: 0.015 },
-                              { range: '$400,001 - $2,000,000', rate: '2.0%', min: 400000, max: 2000000, rateNum: 0.02 },
-                              { range: 'Over $2,000,000', rate: '2.5%', min: 2000000, max: Infinity, rateNum: 0.025 },
-                            ];
-                            
-                            return ontarioBrackets.map((bracket, idx) => {
-                              const applicableAmount = Math.max(0, Math.min(price, bracket.max) - bracket.min);
-                              const taxInBracket = applicableAmount * bracket.rateNum;
-                              const isApplicable = price > bracket.min;
-                              
-                              return (
-                                <tr key={idx} className={`border-t border-slate-100 ${isApplicable ? 'bg-white' : 'bg-slate-50 text-slate-400'}`}>
-                                  <td className="p-2">{bracket.range}</td>
-                                  <td className="text-center p-2">{bracket.rate}</td>
-                                  <td className="text-right p-2 font-medium">
-                                    {isApplicable ? new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(taxInBracket) : '-'}
-                                  </td>
-                                </tr>
-                              );
-                            });
-                          })()}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-
-                  {/* Toronto Brackets */}
-                  {isToronto && (
-                    <div className="space-y-2">
-                      <h4 className="text-xs font-semibold text-slate-700 uppercase tracking-wide">Toronto Tax Brackets</h4>
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-xs border border-slate-200 rounded-lg overflow-hidden">
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-md p-0">
+                        <table className="w-full text-xs">
                           <thead className="bg-slate-100">
                             <tr>
                               <th className="text-left p-2 font-medium text-slate-600">Bracket</th>
@@ -449,39 +379,106 @@ export default function AffordabilityCalculator() {
                           </thead>
                           <tbody>
                             {(() => {
-                              const torontoBrackets = [
+                              const ontarioBrackets = [
                                 { range: 'Up to $55,000', rate: '0.5%', min: 0, max: 55000, rateNum: 0.005 },
                                 { range: '$55,001 - $250,000', rate: '1.0%', min: 55000, max: 250000, rateNum: 0.01 },
                                 { range: '$250,001 - $400,000', rate: '1.5%', min: 250000, max: 400000, rateNum: 0.015 },
                                 { range: '$400,001 - $2,000,000', rate: '2.0%', min: 400000, max: 2000000, rateNum: 0.02 },
-                                { range: '$2,000,001 - $3,000,000', rate: '2.5%', min: 2000000, max: 3000000, rateNum: 0.025 },
-                                { range: '$3,000,001 - $4,000,000', rate: '3.5%', min: 3000000, max: 4000000, rateNum: 0.035 },
-                                { range: '$4,000,001 - $5,000,000', rate: '4.5%', min: 4000000, max: 5000000, rateNum: 0.045 },
-                                { range: '$5,000,001 - $10,000,000', rate: '5.5%', min: 5000000, max: 10000000, rateNum: 0.055 },
-                                { range: '$10,000,001 - $20,000,000', rate: '6.5%', min: 10000000, max: 20000000, rateNum: 0.065 },
-                                { range: 'Over $20,000,000', rate: '7.5%', min: 20000000, max: Infinity, rateNum: 0.075 },
+                                { range: 'Over $2,000,000', rate: '2.5%', min: 2000000, max: Infinity, rateNum: 0.025 },
                               ];
                               
-                              return torontoBrackets.map((bracket, idx) => {
-                                const applicableAmount = Math.max(0, Math.min(price, bracket.max) - bracket.min);
-                                const taxInBracket = applicableAmount * bracket.rateNum;
-                                const isApplicable = price > bracket.min;
-                                
-                                return (
-                                  <tr key={idx} className={`border-t border-slate-100 ${isApplicable ? 'bg-white' : 'bg-slate-50 text-slate-400'}`}>
-                                    <td className="p-2">{bracket.range}</td>
-                                    <td className="text-center p-2">{bracket.rate}</td>
-                                    <td className="text-right p-2 font-medium">
-                                      {isApplicable ? new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(taxInBracket) : '-'}
-                                    </td>
-                                  </tr>
-                                );
-                              });
+                              return ontarioBrackets
+                                .filter(bracket => price > bracket.min)
+                                .map((bracket, idx) => {
+                                  const applicableAmount = Math.max(0, Math.min(price, bracket.max) - bracket.min);
+                                  const taxInBracket = applicableAmount * bracket.rateNum;
+                                  
+                                  return (
+                                    <tr key={idx} className="border-t border-slate-100">
+                                      <td className="p-2">{bracket.range}</td>
+                                      <td className="text-center p-2">{bracket.rate}</td>
+                                      <td className="text-right p-2 font-medium">
+                                        {new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(taxInBracket)}
+                                      </td>
+                                    </tr>
+                                  );
+                                });
                             })()}
                           </tbody>
                         </table>
-                      </div>
-                    </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  {isFirstTimeBuyer && rawOntarioLTT > 0 && (
+                     <div className="flex justify-between text-emerald-600">
+                       <span>Ontario Land Transfer Tax Eligible Rebate Amount</span>
+                       <span>-{new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(ontarioRebate)}</span>
+                     </div>
+                  )}
+
+                  {isToronto && (
+                    <>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="flex justify-between text-slate-600 mt-2 cursor-help">
+                              <span className="underline decoration-dotted">Toronto Land Transfer Tax</span>
+                              <span>{new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(rawTorontoLTT)}</span>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-md p-0">
+                            <table className="w-full text-xs">
+                              <thead className="bg-slate-100">
+                                <tr>
+                                  <th className="text-left p-2 font-medium text-slate-600">Bracket</th>
+                                  <th className="text-center p-2 font-medium text-slate-600">Rate</th>
+                                  <th className="text-right p-2 font-medium text-slate-600">Amount Paid</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {(() => {
+                                  const torontoBrackets = [
+                                    { range: 'Up to $55,000', rate: '0.5%', min: 0, max: 55000, rateNum: 0.005 },
+                                    { range: '$55,001 - $250,000', rate: '1.0%', min: 55000, max: 250000, rateNum: 0.01 },
+                                    { range: '$250,001 - $400,000', rate: '1.5%', min: 250000, max: 400000, rateNum: 0.015 },
+                                    { range: '$400,001 - $2,000,000', rate: '2.0%', min: 400000, max: 2000000, rateNum: 0.02 },
+                                    { range: '$2,000,001 - $3,000,000', rate: '2.5%', min: 2000000, max: 3000000, rateNum: 0.025 },
+                                    { range: '$3,000,001 - $4,000,000', rate: '3.5%', min: 3000000, max: 4000000, rateNum: 0.035 },
+                                    { range: '$4,000,001 - $5,000,000', rate: '4.5%', min: 4000000, max: 5000000, rateNum: 0.045 },
+                                    { range: '$5,000,001 - $10,000,000', rate: '5.5%', min: 5000000, max: 10000000, rateNum: 0.055 },
+                                    { range: '$10,000,001 - $20,000,000', rate: '6.5%', min: 10000000, max: 20000000, rateNum: 0.065 },
+                                    { range: 'Over $20,000,000', rate: '7.5%', min: 20000000, max: Infinity, rateNum: 0.075 },
+                                  ];
+                                  
+                                  return torontoBrackets
+                                    .filter(bracket => price > bracket.min)
+                                    .map((bracket, idx) => {
+                                      const applicableAmount = Math.max(0, Math.min(price, bracket.max) - bracket.min);
+                                      const taxInBracket = applicableAmount * bracket.rateNum;
+                                      
+                                      return (
+                                        <tr key={idx} className="border-t border-slate-100">
+                                          <td className="p-2">{bracket.range}</td>
+                                          <td className="text-center p-2">{bracket.rate}</td>
+                                          <td className="text-right p-2 font-medium">
+                                            {new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(taxInBracket)}
+                                          </td>
+                                        </tr>
+                                      );
+                                    });
+                                })()}
+                              </tbody>
+                            </table>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                      {isFirstTimeBuyer && rawTorontoLTT > 0 && (
+                        <div className="flex justify-between text-emerald-600">
+                          <span>Toronto Land Transfer Tax Eligible Rebate Amount</span>
+                          <span>-{new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(torontoRebate)}</span>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
@@ -564,7 +561,8 @@ export default function AffordabilityCalculator() {
                      </div>
 
                      {rateMode === 'lender' ? (
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-3">
+                          <div className="grid grid-cols-2 gap-3">
                             {BANK_RATES
                                 .filter(bank => bank.type === mortgageType)
                                 .sort((a, b) => a.rate - b.rate)
@@ -586,6 +584,36 @@ export default function AffordabilityCalculator() {
                                         <div className="text-2xl font-bold text-emerald-600 mt-1">{bank.rate}%</div>
                                     </button>
                                 ))}
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label className="text-xs text-slate-500">Additional Lenders</Label>
+                            <Select 
+                              value={lenderName} 
+                              onValueChange={(name) => {
+                                const selected = BANK_RATES.find(b => b.name === name && b.type === mortgageType);
+                                if (selected) {
+                                  setLenderName(selected.name);
+                                  setInterestRate(selected.rate);
+                                }
+                              }}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select a lender" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {BANK_RATES
+                                  .filter(bank => bank.type === mortgageType)
+                                  .sort((a, b) => a.rate - b.rate)
+                                  .slice(4, 9)
+                                  .map((bank) => (
+                                    <SelectItem key={bank.name} value={bank.name}>
+                                      {bank.name} - {bank.rate}%
+                                    </SelectItem>
+                                  ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
                         </div>
                      ) : (
                         <div className="relative">
@@ -632,7 +660,7 @@ export default function AffordabilityCalculator() {
                     </div>
                 </div>
 
-                {/* Mortgage Insurance Configuration */}
+                {/* Mortgage Insurance */}
                 <div className="space-y-3 pt-2 border-t border-slate-100">
                     <div className="flex justify-between items-center">
                          <div className="flex items-center gap-2">
@@ -643,50 +671,21 @@ export default function AffordabilityCalculator() {
                                     <Info className="w-4 h-4 text-slate-400" />
                                 </TooltipTrigger>
                                 <TooltipContent>
-                                    <p>Required for down payments under 20%. Only available for properties under $1 Million.</p>
+                                    <p>Required for down payments under 20%. Only available for properties under $1.5 Million.</p>
                                 </TooltipContent>
                                 </Tooltip>
                             </TooltipProvider>
                          </div>
                          <span className="font-bold text-emerald-600">
-                             {new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(mortgageInsurance)}
+                             {price >= 1500000 ? 'N/A' : new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(mortgageInsurance)}
                          </span>
                     </div>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-3 rounded-lg">
-                        <div>
-                             <Label className="text-xs text-slate-500 mb-2 block">Calculation Method</Label>
-                             <div className="flex p-1 bg-white border border-slate-200 rounded-md">
-                                {['auto', 'manual'].map((type) => (
-                                    <button
-                                        key={type}
-                                        onClick={() => setMortgageInsuranceType(type)}
-                                        className={`flex-1 py-1 text-xs font-medium rounded transition-all capitalize ${
-                                            mortgageInsuranceType === type 
-                                            ? 'bg-slate-900 text-white' 
-                                            : 'text-slate-500 hover:text-slate-700'
-                                        }`}
-                                    >
-                                        {type}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                        {mortgageInsuranceType === 'manual' && (
-                             <div>
-                                <Label className="text-xs text-slate-500 mb-2 block">Manual Amount</Label>
-                                <div className="relative">
-                                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 text-xs">$</span>
-                                    <Input 
-                                        type="number" 
-                                        value={manualMortgageInsurance} 
-                                        onChange={(e) => setManualMortgageInsurance(Number(e.target.value))}
-                                        className="pl-5 h-8 text-sm"
-                                    />
-                                </div>
-                             </div>
-                        )}
-                    </div>
+                    {price >= 1500000 && (
+                      <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-800">
+                        Properties $1,500,000 and over do not qualify for CMHC Mortgage Insurance.
+                      </div>
+                    )}
                 </div>
             </div>
 
@@ -820,6 +819,8 @@ export default function AffordabilityCalculator() {
             mortgageInsurance={mortgageInsurance}
             stressTestPayment={stressTestPayment}
             stressTestRate={stressTestRate}
+            monthlyMortgageCost={monthlyMortgageCost}
+            monthlyCMHCCost={monthlyCMHCCost}
           />
         </div>
       </div>
