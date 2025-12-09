@@ -17,7 +17,9 @@ export default function ResultsDisplay({
   isFirstTimeBuyer,
   mortgageInsurance,
   stressTestPayment,
-  stressTestRate
+  stressTestRate,
+  monthlyMortgageCost,
+  monthlyCMHCCost
 }) {
   
   const upfrontData = [
@@ -43,10 +45,24 @@ export default function ResultsDisplay({
         <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mr-16 -mt-16 blur-3xl"></div>
         <div className="relative z-10">
           <p className="text-emerald-100 font-medium mb-1">Estimated Monthly Payment</p>
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
             {formatCurrency(mortgagePayment)}
           </h2>
-          
+
+          {/* Payment Breakdown */}
+          <div className="bg-emerald-800/30 rounded-lg p-3 mb-4 space-y-1 text-sm">
+            <div className="flex justify-between">
+              <span className="text-emerald-200">Monthly Mortgage Cost</span>
+              <span className="font-medium">{formatCurrency(monthlyMortgageCost)}</span>
+            </div>
+            {monthlyCMHCCost > 0 && (
+              <div className="flex justify-between">
+                <span className="text-emerald-200">CMHC Insurance Cost</span>
+                <span className="font-medium">{formatCurrency(monthlyCMHCCost)}</span>
+              </div>
+            )}
+          </div>
+
           <div className="grid grid-cols-2 gap-4 text-sm border-t border-emerald-800 pt-4">
             <div>
               <p className="text-emerald-300">Total Mortgage</p>
@@ -115,8 +131,8 @@ export default function ResultsDisplay({
               <div className="space-y-2">
                 <div className="flex justify-between items-center p-2 hover:bg-slate-50 rounded-lg transition-colors">
                   <div className="flex flex-col">
-                      <span className="text-slate-700 font-medium">Down Payment</span>
-                      <span className="text-xs text-slate-500">Provided by User</span>
+                      <span className="text-slate-700 font-medium">Down Payment Amount</span>
+                      <span className="text-xs text-slate-500">{formatCurrency(downPaymentAmount)}</span>
                   </div>
                   <span className="font-bold text-slate-900">{formatCurrency(remainingDownPayment)}</span>
                 </div>
@@ -154,9 +170,9 @@ export default function ResultsDisplay({
               </div>
               </div>
 
-              <div className="pt-3 border-t border-slate-200 flex justify-between items-center px-2">
-              <span className="font-semibold text-slate-700">Subtotal (User Provided)</span>
-              <span className="font-bold text-slate-900 text-lg">
+              <div className="pt-3 border-t border-slate-200 flex justify-between items-center px-2 bg-emerald-900 text-white rounded-lg p-3 -mx-2">
+              <span className="font-semibold">Amount Buyer Required to Submit on Closing Date</span>
+              <span className="font-bold text-xl">
                 {formatCurrency(remainingDownPayment + landTransferTax + closingCosts)}
               </span>
               </div>
