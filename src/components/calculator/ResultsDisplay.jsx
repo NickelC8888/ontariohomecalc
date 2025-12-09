@@ -131,8 +131,8 @@ export default function ResultsDisplay({
               <div className="space-y-2">
                 <div className="flex justify-between items-center p-2 hover:bg-slate-50 rounded-lg transition-colors">
                   <div className="flex flex-col">
-                      <span className="text-slate-700 font-medium">Down Payment</span>
-                      <span className="text-xs text-slate-500">Provided by User</span>
+                      <span className="text-slate-700 font-medium">Down Payment Amount</span>
+                      <span className="text-xs text-slate-500">{formatCurrency(downPaymentAmount)}</span>
                   </div>
                   <span className="font-bold text-slate-900">{formatCurrency(remainingDownPayment)}</span>
                 </div>
@@ -170,9 +170,9 @@ export default function ResultsDisplay({
               </div>
               </div>
 
-              <div className="pt-3 border-t border-slate-200 flex justify-between items-center px-2">
-              <span className="font-semibold text-slate-700">Subtotal (User Provided)</span>
-              <span className="font-bold text-slate-900 text-lg">
+              <div className="pt-3 border-t border-slate-200 flex justify-between items-center px-2 bg-emerald-900 text-white rounded-lg p-3 -mx-2">
+              <span className="font-semibold">Amount Buyer Required to Submit on Closing Date</span>
+              <span className="font-bold text-xl">
                 {formatCurrency(remainingDownPayment + landTransferTax + closingCosts)}
               </span>
               </div>

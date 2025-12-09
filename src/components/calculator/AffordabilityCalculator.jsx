@@ -295,8 +295,8 @@ export default function AffordabilityCalculator() {
                 onValueChange={(val) => setDownPaymentPercent(val[0])}
                 className="py-2"
               />
-              <div className="flex gap-2">
-                 {[5, 10, 20].map(pct => (
+              <div className="flex gap-2 flex-wrap">
+                 {[5, 10, 15, 20, 25, 30, 50].map(pct => (
                    <button 
                      key={pct}
                      onClick={() => setDownPaymentPercent(pct)}
