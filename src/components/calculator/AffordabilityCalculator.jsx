@@ -6,7 +6,7 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Info, RefreshCw, Save } from 'lucide-react';
+import { Info, RefreshCw, Save, Mail } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -42,6 +42,16 @@ export default function AffordabilityCalculator() {
   const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
   const [scenarioName, setScenarioName] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+
+  // Email State
+  const [isEmailDialogOpen, setIsEmailDialogOpen] = useState(false);
+  const [emailForm, setEmailForm] = useState({
+    firstName: "",
+    lastName: "",
+    telephone: "",
+    email: ""
+  });
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
 
   // Constants & Bank Data
   const BANK_RATES = [
@@ -229,6 +239,102 @@ export default function AffordabilityCalculator() {
       alert("Failed to save scenario. Please try again.");
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const validateEmailForm = () => {
+    if (!emailForm.firstName.trim() || !emailForm.lastName.trim()) {
+      alert("Please enter your first and last name.");
+      return false;
+    }
+    
+    const phoneRegex = /^[\d\s\-\(\)]+$/;
+    if (!emailForm.telephone.trim() || !phoneRegex.test(emailForm.telephone)) {
+      alert("Please enter a valid telephone number.");
+      return false;
+    }
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailForm.email.trim() || !emailRegex.test(emailForm.email)) {
+      alert("Please enter a valid email address.");
+      return false;
+    }
+    
+    return true;
+  };
+
+  const handleSendEmail = async () => {
+    if (!validateEmailForm()) return;
+    
+    setIsSendingEmail(true);
+    try {
+      const formatCurrency = (val) => 
+        new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(val);
+      
+      const emailBody = `
+        <h2>Your Home Affordability Calculation</h2>
+        
+        <p>Dear ${emailForm.firstName} ${emailForm.lastName},</p>
+        
+        <p>Here is your personalized home affordability estimate:</p>
+        
+        <h3>Estimated Monthly Payment</h3>
+        <p><strong>${formatCurrency(monthlyPayment)}</strong></p>
+        <ul>
+          <li>Monthly Mortgage Cost: ${formatCurrency(monthlyMortgageCost)}</li>
+          ${monthlyCMHCCost > 0 ? `<li>CMHC Insurance Cost: ${formatCurrency(monthlyCMHCCost)}</li>` : ''}
+          <li>Total Mortgage: ${formatCurrency(totalMortgageAmount)}</li>
+          <li>Stress Test Payment: ${formatCurrency(stressTestPayment)} @ ${stressTestRate.toFixed(2)}%</li>
+        </ul>
+        
+        <h3>Purchase Price Summary</h3>
+        <ul>
+          <li>Property Price: ${formatCurrency(price)}</li>
+          <li>Down Payment (${downPaymentPercent.toFixed(1)}%): ${formatCurrency(downPaymentAmount)}</li>
+          ${depositAmount > 0 ? `<li>Deposit Already Submitted: ${formatCurrency(depositAmount)}</li>` : ''}
+          ${depositAmount > 0 ? `<li>Remaining Down Payment: ${formatCurrency(downPaymentAmount - depositAmount)}</li>` : ''}
+          <li>Mortgage Amount: ${formatCurrency(price - downPaymentAmount)}</li>
+        </ul>
+        
+        <h3>Amount Due on Closing</h3>
+        <ul>
+          <li>Remaining Down Payment: ${formatCurrency(downPaymentAmount - depositAmount)}</li>
+          <li>Land Transfer Tax: ${formatCurrency(totalLTT)}</li>
+          <li>Closing Costs: ${formatCurrency(totalClosingCosts)}</li>
+          <li><strong>Total Amount Buyer Required to Submit on Closing Date: ${formatCurrency((downPaymentAmount - depositAmount) + totalLTT + totalClosingCosts)}</strong></li>
+        </ul>
+        
+        <h3>Mortgage Details</h3>
+        <ul>
+          <li>Interest Rate: ${interestRate}%</li>
+          <li>Mortgage Type: ${mortgageType}</li>
+          <li>Lender: ${lenderName}</li>
+          <li>Amortization: ${amortization} years</li>
+          <li>Term: ${mortgageTerm} years</li>
+          ${mortgageInsurance > 0 ? `<li>CMHC Insurance: ${formatCurrency(mortgageInsurance)}</li>` : ''}
+          <li>Location: ${isToronto ? 'Toronto' : 'Ontario'}</li>
+          <li>First-Time Buyer: ${isFirstTimeBuyer ? 'Yes' : 'No'}</li>
+        </ul>
+        
+        <p><em>*This is an estimate only. Please consult with a mortgage professional for accurate calculations.</em></p>
+        
+        <p>Best regards,<br/>OntarioHomeCalc</p>
+      `;
+      
+      await base44.integrations.Core.SendEmail({
+        to: emailForm.email,
+        subject: "Your Home Affordability Calculation",
+        body: emailBody
+      });
+      
+      setIsEmailDialogOpen(false);
+      setEmailForm({ firstName: "", lastName: "", telephone: "", email: "" });
+      alert("Email sent successfully!");
+    } catch (error) {
+      console.error("Failed to send email:", error);
+      alert("Failed to send email. Please try again.");
+    } finally {
+      setIsSendingEmail(false);
     }
   };
 
@@ -793,10 +899,90 @@ export default function AffordabilityCalculator() {
         </DialogContent>
         </Dialog>
 
+        {/* Email Dialog */}
+        <Dialog open={isEmailDialogOpen} onOpenChange={setIsEmailDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Email Your Calculation</DialogTitle>
+          <DialogDescription>
+            Enter your details to receive this calculation via email.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="firstName" className="text-right">
+              First Name <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="firstName"
+              placeholder="John"
+              value={emailForm.firstName}
+              onChange={(e) => setEmailForm({...emailForm, firstName: e.target.value})}
+              className="col-span-3"
+              required
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="lastName" className="text-right">
+              Last Name <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="lastName"
+              placeholder="Doe"
+              value={emailForm.lastName}
+              onChange={(e) => setEmailForm({...emailForm, lastName: e.target.value})}
+              className="col-span-3"
+              required
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="telephone" className="text-right">
+              Phone <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="telephone"
+              placeholder="(416) 555-1234"
+              value={emailForm.telephone}
+              onChange={(e) => setEmailForm({...emailForm, telephone: e.target.value})}
+              className="col-span-3"
+              required
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="email" className="text-right">
+              Email <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="john@example.com"
+              value={emailForm.email}
+              onChange={(e) => setEmailForm({...emailForm, email: e.target.value})}
+              className="col-span-3"
+              required
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setIsEmailDialogOpen(false)}>Cancel</Button>
+          <Button onClick={handleSendEmail} disabled={isSendingEmail} className="bg-emerald-600 hover:bg-emerald-700">
+            {isSendingEmail ? "Sending..." : "Send Email"}
+          </Button>
+        </DialogFooter>
+        </DialogContent>
+        </Dialog>
+
       {/* Results Section */}
       <div className="lg:col-span-5">
         <div className="sticky top-24 space-y-6">
-          <div className="flex justify-end">
+          <div className="flex justify-end gap-3">
+             <Button 
+               onClick={() => setIsEmailDialogOpen(true)}
+               className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2"
+             >
+               <Mail className="w-4 h-4" />
+               Email
+             </Button>
              <Button 
                onClick={() => setIsSaveDialogOpen(true)}
                className="bg-slate-800 hover:bg-slate-900 text-white gap-2"
