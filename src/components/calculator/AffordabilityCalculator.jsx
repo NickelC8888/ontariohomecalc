@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -6,7 +7,7 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Info, RefreshCw, Save, Mail } from 'lucide-react';
+import { Info, RefreshCw, Save, Mail, ArrowRightLeft } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,8 @@ import { base44 } from "@/api/base44Client";
 import ResultsDisplay from './ResultsDisplay';
 
 export default function AffordabilityCalculator() {
+  const navigate = useNavigate();
+  
   // State
   const [price, setPrice] = useState(750000);
   const [downPaymentPercent, setDownPaymentPercent] = useState(20);
@@ -975,7 +978,26 @@ export default function AffordabilityCalculator() {
       {/* Results Section */}
       <div className="lg:col-span-5">
         <div className="sticky top-24 space-y-6">
-          <div className="flex justify-end gap-3">
+          <div className="flex justify-end gap-3 flex-wrap">
+             <Button 
+               onClick={() => navigate('/Comparison', { 
+                 state: { 
+                   price, 
+                   downPaymentPercent, 
+                   interestRate, 
+                   amortization, 
+                   mortgageTerm, 
+                   mortgageType,
+                   isToronto,
+                   isFirstTimeBuyer
+                 } 
+               })}
+               variant="outline"
+               className="gap-2"
+             >
+               <ArrowRightLeft className="w-4 h-4" />
+               Compare Scenarios
+             </Button>
              <Button 
                onClick={() => setIsEmailDialogOpen(true)}
                className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2"
