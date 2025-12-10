@@ -14,7 +14,7 @@ export default function Comparison() {
 
   const [scenarios, setScenarios] = useState([
     {
-      name: "Original",
+      name: "Scenario 1",
       price: initialData.price || 750000,
       downPaymentPercent: initialData.downPaymentPercent || 20,
       interestRate: initialData.interestRate || 4.79,
@@ -25,7 +25,7 @@ export default function Comparison() {
       isFirstTimeBuyer: initialData.isFirstTimeBuyer || true,
     },
     {
-      name: "15% Down",
+      name: "Scenario 2",
       price: initialData.price || 750000,
       downPaymentPercent: 15,
       interestRate: initialData.interestRate || 4.79,
@@ -36,7 +36,7 @@ export default function Comparison() {
       isFirstTimeBuyer: initialData.isFirstTimeBuyer || true,
     },
     {
-      name: "25% Down",
+      name: "Scenario 3",
       price: initialData.price || 750000,
       downPaymentPercent: 25,
       interestRate: initialData.interestRate || 4.79,
