@@ -21,6 +21,8 @@ export default function Comparison() {
       amortization: initialData.amortization || 25,
       mortgageTerm: initialData.mortgageTerm || 5,
       mortgageType: initialData.mortgageType || "fixed",
+      rateMode: "lender",
+      lenderName: "BMO",
       isToronto: initialData.isToronto || true,
       isFirstTimeBuyer: initialData.isFirstTimeBuyer || true,
     },
@@ -32,6 +34,8 @@ export default function Comparison() {
       amortization: initialData.amortization || 25,
       mortgageTerm: initialData.mortgageTerm || 5,
       mortgageType: initialData.mortgageType || "fixed",
+      rateMode: "lender",
+      lenderName: "BMO",
       isToronto: initialData.isToronto || true,
       isFirstTimeBuyer: initialData.isFirstTimeBuyer || true,
     },
@@ -43,6 +47,8 @@ export default function Comparison() {
       amortization: initialData.amortization || 25,
       mortgageTerm: initialData.mortgageTerm || 5,
       mortgageType: initialData.mortgageType || "fixed",
+      rateMode: "lender",
+      lenderName: "BMO",
       isToronto: initialData.isToronto || true,
       isFirstTimeBuyer: initialData.isFirstTimeBuyer || true,
     }
@@ -50,6 +56,28 @@ export default function Comparison() {
 
   const formatCurrency = (val) => 
     new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(val);
+
+  // Bank Rates Data
+  const BANK_RATES = [
+    // Fixed Rates
+    { name: "RBC", rate: 4.84, type: "fixed" },
+    { name: "TD", rate: 4.99, type: "fixed" },
+    { name: "Scotiabank", rate: 5.09, type: "fixed" },
+    { name: "BMO", rate: 4.79, type: "fixed" },
+    { name: "CIBC", rate: 4.89, type: "fixed" },
+    { name: "National Bank", rate: 4.94, type: "fixed" },
+    { name: "EQ Bank", rate: 4.69, type: "fixed" },
+    { name: "Tangerine", rate: 4.74, type: "fixed" },
+    // Variable Rates
+    { name: "RBC", rate: 6.35, type: "variable" },
+    { name: "TD", rate: 6.45, type: "variable" },
+    { name: "Scotiabank", rate: 6.50, type: "variable" },
+    { name: "BMO", rate: 6.30, type: "variable" },
+    { name: "CIBC", rate: 6.40, type: "variable" },
+    { name: "National Bank", rate: 6.45, type: "variable" },
+    { name: "EQ Bank", rate: 6.10, type: "variable" },
+    { name: "Tangerine", rate: 6.15, type: "variable" }
+  ];
 
   const calculatePayment = (principal, rate, years) => {
     const monthlyRate = rate / 100 / 12;
@@ -160,34 +188,109 @@ export default function Comparison() {
               <p className="text-xs text-slate-500 mt-1">{formatCurrency(downPaymentAmount)}</p>
             </div>
 
+            {/* Mortgage Type */}
             <div>
-              <Label className="text-sm font-medium text-slate-700">Interest Rate</Label>
-              <div className="flex items-center gap-2 mt-1">
-                <Input 
-                  type="number"
-                  value={scenario.interestRate}
-                  onChange={(e) => updateScenario(index, 'interestRate', Number(e.target.value))}
-                  step="0.01"
-                  className="flex-1"
-                />
-                <span className="text-slate-600 font-medium">%</span>
+              <Label className="text-sm font-medium text-slate-700">Mortgage Type</Label>
+              <div className="flex p-1 bg-slate-100 rounded-lg mt-1">
+                {['fixed', 'variable'].map((type) => (
+                  <button
+                    key={type}
+                    onClick={() => {
+                      updateScenario(index, 'mortgageType', type);
+                      // Reset to first lender of new type if in lender mode
+                      if (scenario.rateMode === 'lender') {
+                        const firstMatch = BANK_RATES.find(b => b.type === type);
+                        if (firstMatch) {
+                          updateScenario(index, 'lenderName', firstMatch.name);
+                          updateScenario(index, 'interestRate', firstMatch.rate);
+                        }
+                      }
+                    }}
+                    className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-all capitalize ${
+                      scenario.mortgageType === type 
+                      ? 'bg-white text-slate-900 shadow-sm' 
+                      : 'text-slate-500 hover:text-slate-700'
+                    }`}
+                  >
+                    {type}
+                  </button>
+                ))}
               </div>
             </div>
 
+            {/* Rate Source Selection */}
             <div>
-              <Label className="text-sm font-medium text-slate-700">Mortgage Type</Label>
-              <Select 
-                value={scenario.mortgageType} 
-                onValueChange={(val) => updateScenario(index, 'mortgageType', val)}
-              >
-                <SelectTrigger className="mt-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="fixed">Fixed</SelectItem>
-                  <SelectItem value="variable">Variable</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="flex justify-between items-center mb-2">
+                <Label className="text-sm font-medium text-slate-700">Interest Rate Source</Label>
+                <div className="flex bg-slate-100 rounded-lg p-0.5">
+                  <button
+                    onClick={() => {
+                      updateScenario(index, 'rateMode', 'lender');
+                      const match = BANK_RATES.find(b => b.name === scenario.lenderName && b.type === scenario.mortgageType) 
+                          || BANK_RATES.find(b => b.type === scenario.mortgageType);
+                      if (match) {
+                        updateScenario(index, 'lenderName', match.name);
+                        updateScenario(index, 'interestRate', match.rate);
+                      }
+                    }}
+                    className={`px-2 py-1 text-xs font-medium rounded-md transition-all ${
+                      scenario.rateMode === 'lender' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500'
+                    }`}
+                  >
+                    Lender
+                  </button>
+                  <button
+                    onClick={() => {
+                      updateScenario(index, 'rateMode', 'custom');
+                      updateScenario(index, 'lenderName', 'Custom');
+                    }}
+                    className={`px-2 py-1 text-xs font-medium rounded-md transition-all ${
+                      scenario.rateMode === 'custom' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500'
+                    }`}
+                  >
+                    Custom
+                  </button>
+                </div>
+              </div>
+
+              {scenario.rateMode === 'lender' ? (
+                <Select 
+                  value={scenario.lenderName} 
+                  onValueChange={(name) => {
+                    const selected = BANK_RATES.find(b => b.name === name && b.type === scenario.mortgageType);
+                    if (selected) {
+                      updateScenario(index, 'lenderName', selected.name);
+                      updateScenario(index, 'interestRate', selected.rate);
+                    }
+                  }}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {BANK_RATES
+                      .filter(bank => bank.type === scenario.mortgageType)
+                      .sort((a, b) => a.rate - b.rate)
+                      .slice(0, 5)
+                      .map((bank) => (
+                        <SelectItem key={bank.name} value={bank.name}>
+                          {bank.name} - {bank.rate}%
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <div className="relative mt-1">
+                  <Input 
+                    type="number" 
+                    value={scenario.interestRate} 
+                    onChange={(e) => updateScenario(index, 'interestRate', Number(e.target.value))}
+                    step="0.01"
+                    className="font-semibold pr-8"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500">%</span>
+                </div>
+              )}
             </div>
 
             <div>
