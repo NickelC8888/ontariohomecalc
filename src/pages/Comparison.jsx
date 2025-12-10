@@ -179,6 +179,7 @@ export default function Comparison() {
                   type="number"
                   value={scenario.downPaymentPercent}
                   onChange={(e) => updateScenario(index, 'downPaymentPercent', Number(e.target.value))}
+                  onFocus={(e) => e.target.select()}
                   className="flex-1"
                   min="5"
                   max="100"
