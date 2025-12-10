@@ -72,6 +72,46 @@ export default function Comparison() {
     return (price - downPaymentAmount) * premiumRate;
   };
 
+  const calculateOntarioLTT = (price) => {
+    let tax = 0;
+    if (price > 0) tax += Math.min(price, 55000) * 0.005;
+    if (price > 55000) tax += (Math.min(price, 250000) - 55000) * 0.01;
+    if (price > 250000) tax += (Math.min(price, 400000) - 250000) * 0.015;
+    if (price > 400000) tax += (Math.min(price, 2000000) - 400000) * 0.02;
+    if (price > 2000000) tax += (price - 2000000) * 0.025;
+    return tax;
+  };
+
+  const calculateTorontoLTT = (price, isToronto) => {
+    if (!isToronto) return 0;
+    let tax = 0;
+    if (price > 0) tax += Math.min(price, 55000) * 0.005;
+    if (price > 55000) tax += (Math.min(price, 250000) - 55000) * 0.01;
+    if (price > 250000) tax += (Math.min(price, 400000) - 250000) * 0.015;
+    if (price > 400000) tax += (Math.min(price, 2000000) - 400000) * 0.02;
+    if (price > 2000000) tax += (Math.min(price, 3000000) - 2000000) * 0.025;
+    if (price > 3000000) tax += (Math.min(price, 4000000) - 3000000) * 0.035;
+    if (price > 4000000) tax += (Math.min(price, 5000000) - 4000000) * 0.045;
+    if (price > 5000000) tax += (Math.min(price, 10000000) - 5000000) * 0.055;
+    if (price > 10000000) tax += (Math.min(price, 20000000) - 10000000) * 0.065;
+    if (price > 20000000) tax += (price - 20000000) * 0.075;
+    return tax;
+  };
+
+  const calculateTotalLTT = (price, isToronto, isFirstTimeBuyer) => {
+    let ontarioTax = calculateOntarioLTT(price);
+    let torontoTax = calculateTorontoLTT(price, isToronto);
+    
+    if (isFirstTimeBuyer) {
+      ontarioTax = Math.max(0, ontarioTax - 4000);
+      if (isToronto) {
+        torontoTax = Math.max(0, torontoTax - 4475);
+      }
+    }
+    
+    return ontarioTax + torontoTax;
+  };
+
   const updateScenario = (index, field, value) => {
     setScenarios(prev => {
       const newScenarios = [...prev];
@@ -85,6 +125,9 @@ export default function Comparison() {
     const mortgageInsurance = calculateCMHC(scenario.price, scenario.downPaymentPercent);
     const totalMortgageAmount = (scenario.price - downPaymentAmount) + mortgageInsurance;
     const monthlyPayment = calculatePayment(totalMortgageAmount, scenario.interestRate, scenario.amortization);
+    const totalLTT = calculateTotalLTT(scenario.price, scenario.isToronto, scenario.isFirstTimeBuyer);
+    const closingCosts = 2300; // Default estimate (legal + appraisal + inspection)
+    const totalAmountDueOnClosing = downPaymentAmount + totalLTT + closingCosts;
 
     return (
       <Card key={index} className="border-2 border-slate-200">
@@ -201,6 +244,27 @@ export default function Comparison() {
             <div className="flex justify-between font-semibold">
               <span className="text-slate-900">Total Mortgage</span>
               <span className="text-slate-900">{formatCurrency(totalMortgageAmount)}</span>
+            </div>
+          </div>
+
+          {/* Amount Due on Closing */}
+          <div className="border-t pt-4 space-y-2 text-sm bg-slate-50 -mx-6 px-6 py-4">
+            <h4 className="font-semibold text-slate-900 mb-3">Amount Due on Closing</h4>
+            <div className="flex justify-between">
+              <span className="text-slate-600">Down Payment</span>
+              <span className="font-medium">{formatCurrency(downPaymentAmount)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-600">Land Transfer Tax</span>
+              <span className="font-medium">{formatCurrency(totalLTT)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-600">Closing Costs</span>
+              <span className="font-medium">{formatCurrency(closingCosts)}</span>
+            </div>
+            <div className="flex justify-between font-bold text-base pt-2 border-t border-slate-200">
+              <span className="text-slate-900">Total Amount Due</span>
+              <span className="text-emerald-600">{formatCurrency(totalAmountDueOnClosing)}</span>
             </div>
           </div>
 
