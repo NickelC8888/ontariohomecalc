@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -25,12 +25,29 @@ import { format } from 'date-fns';
 export default function SavedScenarios() {
   const [selectedIds, setSelectedIds] = useState([]);
   const [isCompareOpen, setIsCompareOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
   const queryClient = useQueryClient();
 
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const user = await base44.auth.me();
+        setCurrentUser(user);
+      } catch (error) {
+        console.error("Failed to load user:", error);
+      }
+    };
+    loadUser();
+  }, []);
+
   const { data: scenarios, isLoading } = useQuery({
-    queryKey: ['scenarios'],
-    queryFn: () => base44.entities.Scenario.list('-created_date', 50),
+    queryKey: ['scenarios', currentUser?.email],
+    queryFn: async () => {
+      if (!currentUser) return [];
+      return base44.entities.Scenario.filter({ created_by: currentUser.email }, '-created_date', 100);
+    },
     initialData: [],
+    enabled: !!currentUser,
   });
 
   const deleteMutation = useMutation({

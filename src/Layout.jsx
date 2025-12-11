@@ -25,6 +25,12 @@ export default function Layout({ children }) {
             >
                 My Scenarios
             </Link>
+            <Link 
+                to={createPageUrl('Profile')}
+                className="text-sm font-medium text-slate-600 hover:text-emerald-600 transition-colors"
+            >
+                Profile
+            </Link>
             <div className="flex items-center text-sm font-medium text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
               <MapPin className="w-3 h-3 mr-1 text-emerald-600" />
               Ontario, Canada
