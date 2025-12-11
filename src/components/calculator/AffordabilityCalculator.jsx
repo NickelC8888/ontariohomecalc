@@ -45,6 +45,7 @@ export default function AffordabilityCalculator() {
   const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
   const [scenarioName, setScenarioName] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
 
   // Email State
   const [isEmailDialogOpen, setIsEmailDialogOpen] = useState(false);
@@ -208,7 +209,31 @@ export default function AffordabilityCalculator() {
     setClosingCostBreakdown(prev => ({ ...prev, [key]: Number(val) }));
   };
 
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const user = await base44.auth.me();
+        setCurrentUser(user);
+      } catch (error) {
+        // User not logged in
+        setCurrentUser(null);
+      }
+    };
+    loadUser();
+  }, []);
+
   const handleSaveScenario = async () => {
+    if (!currentUser) {
+      base44.auth.redirectToLogin(window.location.pathname);
+      return;
+    }
+
+    if (!currentUser.first_name || !currentUser.last_name) {
+      alert("Please complete your profile before saving scenarios.");
+      navigate('/Profile');
+      return;
+    }
+
     if (!scenarioName.trim()) return;
     
     setIsSaving(true);
@@ -1006,7 +1031,19 @@ export default function AffordabilityCalculator() {
                Email
              </Button>
              <Button 
-               onClick={() => setIsSaveDialogOpen(true)}
+               onClick={() => {
+                 if (!currentUser) {
+                   if (confirm("You need to sign up to save scenarios. Would you like to sign up now?")) {
+                     base44.auth.redirectToLogin(window.location.pathname);
+                   }
+                 } else if (!currentUser.first_name || !currentUser.last_name) {
+                   if (confirm("Please complete your profile before saving scenarios. Go to profile now?")) {
+                     navigate('/Profile');
+                   }
+                 } else {
+                   setIsSaveDialogOpen(true);
+                 }
+               }}
                className="bg-slate-800 hover:bg-slate-900 text-white gap-2"
              >
                <Save className="w-4 h-4" />
