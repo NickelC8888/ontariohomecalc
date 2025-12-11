@@ -198,6 +198,14 @@ export default function ResultsDisplay({
            </div>
         </CardContent>
       </Card>
+
+      {/* Sidebar Ad */}
+      <div className="bg-slate-100 border border-slate-200 rounded-lg p-3 text-center">
+        <p className="text-xs text-slate-400 mb-2">Advertisement</p>
+        <div className="bg-white border border-dashed border-slate-300 rounded h-64 flex items-center justify-center">
+          <span className="text-slate-400 text-xs">AdSense Ad (300x250)</span>
+        </div>
+      </div>
       
       {/* Visual Breakdown (Optional - Kept minimal) */}
       <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
