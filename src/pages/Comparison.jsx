@@ -379,6 +379,14 @@ export default function Comparison() {
 
   return (
     <div className="space-y-8">
+      {/* Top Ad Banner */}
+      <div className="bg-slate-100 border border-slate-200 rounded-lg p-4 text-center">
+        <p className="text-xs text-slate-400 mb-2">Advertisement</p>
+        <div className="bg-white border border-dashed border-slate-300 rounded h-24 flex items-center justify-center">
+          <span className="text-slate-400 text-sm">AdSense Ad Space (728x90)</span>
+        </div>
+      </div>
+
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-slate-900">Scenario Comparison</h1>
@@ -395,6 +403,14 @@ export default function Comparison() {
       <div className="grid md:grid-cols-3 gap-6">
         {scenarios.map((scenario, index) => renderScenario(scenario, index))}
       </div>
-    </div>
-  );
-}
+
+      {/* Bottom Ad Banner */}
+      <div className="bg-slate-100 border border-slate-200 rounded-lg p-4 text-center">
+        <p className="text-xs text-slate-400 mb-2">Advertisement</p>
+        <div className="bg-white border border-dashed border-slate-300 rounded h-24 flex items-center justify-center">
+          <span className="text-slate-400 text-sm">AdSense Ad Space (728x90)</span>
+        </div>
+      </div>
+      </div>
+      );
+      }
