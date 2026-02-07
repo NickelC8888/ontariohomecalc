@@ -765,8 +765,15 @@ export default function AffordabilityCalculator() {
 
                      {rateMode === 'lender' ? (
                         <div className="space-y-3">
+                          {ratesLoading ? (
+                            <div className="text-center py-8">
+                              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto"></div>
+                              <p className="text-sm text-slate-600 mt-2">Loading live rates...</p>
+                            </div>
+                          ) : (
+                            <>
                           <div className="grid grid-cols-2 gap-3">
-                            {BANK_RATES
+                            {bankRates
                                 .filter(bank => bank.type === mortgageType)
                                 .sort((a, b) => a.rate - b.rate)
                                 .slice(0, 4)
