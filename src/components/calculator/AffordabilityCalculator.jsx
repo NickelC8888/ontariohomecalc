@@ -7,12 +7,13 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Info, RefreshCw, Save, Mail, ArrowRightLeft } from 'lucide-react';
+import { Info, RefreshCw, Save, Mail, ArrowRightLeft, Calculator } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
 import ResultsDisplay from './ResultsDisplay';
+import AmortizationSchedule from './AmortizationSchedule';
 
 export default function AffordabilityCalculator() {
   const navigate = useNavigate();
@@ -79,6 +80,9 @@ export default function AffordabilityCalculator() {
     email: ""
   });
   const [isSendingEmail, setIsSendingEmail] = useState(false);
+
+  // Amortization Schedule State
+  const [isAmortizationOpen, setIsAmortizationOpen] = useState(false);
 
   // Constants
   const STRESS_TEST_BENCHMARK = 5.25;
@@ -804,34 +808,45 @@ export default function AffordabilityCalculator() {
                 </div>
 
                 {/* Amortization & Term */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-3">
-                        <Label className="text-slate-700 font-medium">Amortization</Label>
-                        <Select value={String(amortization)} onValueChange={(val) => setAmortization(Number(val))}>
-                        <SelectTrigger>
-                            <SelectValue placeholder="Select years" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {[15, 20, 25, 30].map(year => (
-                            <SelectItem key={year} value={String(year)}>{year} Years</SelectItem>
-                            ))}
-                        </SelectContent>
-                        </Select>
-                    </div>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-3">
+                          <Label className="text-slate-700 font-medium">Amortization</Label>
+                          <Select value={String(amortization)} onValueChange={(val) => setAmortization(Number(val))}>
+                          <SelectTrigger>
+                              <SelectValue placeholder="Select years" />
+                          </SelectTrigger>
+                          <SelectContent>
+                              {[15, 20, 25, 30].map(year => (
+                              <SelectItem key={year} value={String(year)}>{year} Years</SelectItem>
+                              ))}
+                          </SelectContent>
+                          </Select>
+                      </div>
 
-                    <div className="space-y-3">
-                        <Label className="text-slate-700 font-medium">Term</Label>
-                        <Select value={String(mortgageTerm)} onValueChange={(val) => setMortgageTerm(Number(val))}>
-                        <SelectTrigger>
-                            <SelectValue placeholder="Select term" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {[1, 2, 3, 4, 5, 7, 10].map(year => (
-                            <SelectItem key={year} value={String(year)}>{year} Years</SelectItem>
-                            ))}
-                        </SelectContent>
-                        </Select>
-                    </div>
+                      <div className="space-y-3">
+                          <Label className="text-slate-700 font-medium">Term</Label>
+                          <Select value={String(mortgageTerm)} onValueChange={(val) => setMortgageTerm(Number(val))}>
+                          <SelectTrigger>
+                              <SelectValue placeholder="Select term" />
+                          </SelectTrigger>
+                          <SelectContent>
+                              {[1, 2, 3, 4, 5, 7, 10].map(year => (
+                              <SelectItem key={year} value={String(year)}>{year} Years</SelectItem>
+                              ))}
+                          </SelectContent>
+                          </Select>
+                      </div>
+                  </div>
+
+                  <Button 
+                    onClick={() => setIsAmortizationOpen(true)}
+                    variant="outline"
+                    className="w-full gap-2"
+                  >
+                    <Calculator className="w-4 h-4" />
+                    View Amortization Schedule
+                  </Button>
                 </div>
 
                 {/* Mortgage Insurance */}
@@ -1039,6 +1054,16 @@ export default function AffordabilityCalculator() {
         </DialogFooter>
         </DialogContent>
         </Dialog>
+
+        {/* Amortization Schedule Dialog */}
+        <AmortizationSchedule 
+          open={isAmortizationOpen}
+          onClose={() => setIsAmortizationOpen(false)}
+          mortgageAmount={totalMortgageAmount}
+          interestRate={interestRate}
+          amortization={amortization}
+          monthlyPayment={monthlyPayment}
+        />
 
       {/* Results Section */}
       <div className="lg:col-span-5">
