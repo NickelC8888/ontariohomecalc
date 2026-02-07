@@ -50,8 +50,8 @@
 import Comparison from './pages/Comparison';
 import Home from './pages/Home';
 import Profile from './pages/Profile';
-import SavedScenarios from './pages/SavedScenarios';
 import Registration from './pages/Registration';
+import SavedScenarios from './pages/SavedScenarios';
 import __Layout from './Layout.jsx';
 
 
@@ -59,8 +59,8 @@ export const PAGES = {
     "Comparison": Comparison,
     "Home": Home,
     "Profile": Profile,
-    "SavedScenarios": SavedScenarios,
     "Registration": Registration,
+    "SavedScenarios": SavedScenarios,
 }
 
 export const pagesConfig = {

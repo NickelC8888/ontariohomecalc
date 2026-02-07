@@ -12,17 +12,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Trash2, Building, DollarSign, Calendar, MapPin, ArrowRightLeft, CheckCircle2, ExternalLink } from 'lucide-react';
 import { format } from 'date-fns';
 import { createPageUrl } from '../utils';
+import ComparisonView from '../components/comparison/ComparisonView';
 
 export default function SavedScenarios() {
   const navigate = useNavigate();
@@ -208,95 +201,18 @@ export default function SavedScenarios() {
       )}
 
       <Dialog open={isCompareOpen} onOpenChange={setIsCompareOpen}>
-        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Scenario Comparison</DialogTitle>
+            <DialogTitle>Advanced Scenario Comparison</DialogTitle>
             <DialogDescription>
-              Comparing {selectedScenarios.length} selected scenarios side-by-side.
+              Analyzing {selectedScenarios.length} scenarios with sortable metrics and visual insights
             </DialogDescription>
           </DialogHeader>
           
-          <div className="mt-4 overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[200px] bg-slate-50 font-bold">Metric</TableHead>
-                  {selectedScenarios.map(s => (
-                    <TableHead key={s.id} className="font-bold text-slate-900 bg-slate-50 min-w-[180px]">
-                      {s.name}
-                    </TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <TableRow>
-                  <TableCell className="font-medium text-slate-600">Price</TableCell>
-                  {selectedScenarios.map(s => (
-                    <TableCell key={s.id} className="font-semibold text-lg">
-                      {formatCurrency(s.property_price)}
-                    </TableCell>
-                  ))}
-                </TableRow>
-                <TableRow className="bg-slate-50/50">
-                  <TableCell className="font-medium text-slate-600">Monthly Payment</TableCell>
-                  {selectedScenarios.map(s => (
-                    <TableCell key={s.id} className="font-bold text-emerald-600 text-lg">
-                      {formatCurrency(s.monthly_payment)}
-                    </TableCell>
-                  ))}
-                </TableRow>
-                <TableRow>
-                  <TableCell className="font-medium text-slate-600">Upfront Cash Needed</TableCell>
-                  {selectedScenarios.map(s => (
-                    <TableCell key={s.id} className="font-bold">
-                      {formatCurrency(s.total_cash_needed)}
-                    </TableCell>
-                  ))}
-                </TableRow>
-                <TableRow className="bg-slate-50/50">
-                   <TableCell className="font-medium text-slate-600">Down Payment</TableCell>
-                   {selectedScenarios.map(s => (
-                    <TableCell key={s.id}>
-                      {formatCurrency(s.property_price * (s.down_payment_percent/100))}
-                      <span className="text-slate-400 text-xs ml-1">({s.down_payment_percent.toFixed(1)}%)</span>
-                    </TableCell>
-                  ))}
-                </TableRow>
-                <TableRow>
-                  <TableCell className="font-medium text-slate-600">Land Transfer Tax</TableCell>
-                  {selectedScenarios.map(s => (
-                    <TableCell key={s.id}>
-                      {formatCurrency(s.total_ltt)}
-                    </TableCell>
-                  ))}
-                </TableRow>
-                <TableRow className="bg-slate-50/50">
-                  <TableCell className="font-medium text-slate-600">Location</TableCell>
-                  {selectedScenarios.map(s => (
-                    <TableCell key={s.id}>
-                       {s.is_toronto ? 'Toronto' : 'Ontario'}
-                    </TableCell>
-                  ))}
-                </TableRow>
-                 <TableRow>
-                  <TableCell className="font-medium text-slate-600">Interest Rate</TableCell>
-                  {selectedScenarios.map(s => (
-                    <TableCell key={s.id}>
-                       {s.interest_rate}%
-                    </TableCell>
-                  ))}
-                </TableRow>
-                 <TableRow className="bg-slate-50/50">
-                  <TableCell className="font-medium text-slate-600">Amortization</TableCell>
-                  {selectedScenarios.map(s => (
-                    <TableCell key={s.id}>
-                       {s.amortization} Years
-                    </TableCell>
-                  ))}
-                </TableRow>
-              </TableBody>
-            </Table>
-          </div>
+          <ComparisonView 
+            scenarios={selectedScenarios}
+            onClose={() => setIsCompareOpen(false)}
+          />
         </DialogContent>
       </Dialog>
     </div>
