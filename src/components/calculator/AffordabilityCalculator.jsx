@@ -16,6 +16,7 @@ import ResultsDisplay from './ResultsDisplay';
 
 export default function AffordabilityCalculator() {
   const navigate = useNavigate();
+  const location = useLocation();
   
   // State
   const [price, setPrice] = useState(750000);
@@ -221,6 +222,26 @@ export default function AffordabilityCalculator() {
     };
     loadUser();
   }, []);
+
+  // Load scenario from navigation state
+  useEffect(() => {
+    if (location.state?.loadScenario) {
+      const scenario = location.state.loadScenario;
+      setPrice(scenario.property_price);
+      setDownPaymentPercent(scenario.down_payment_percent);
+      setInterestRate(scenario.interest_rate);
+      setAmortization(scenario.amortization);
+      setMortgageTerm(scenario.mortgage_term);
+      setMortgageType(scenario.mortgage_type);
+      setLenderName(scenario.lender_name || "BMO");
+      setRateMode(scenario.lender_name === "Custom" ? "custom" : "lender");
+      setIsToronto(scenario.is_toronto);
+      setIsFirstTimeBuyer(scenario.is_first_time_buyer);
+      if (scenario.closing_costs_breakdown) {
+        setClosingCostBreakdown(scenario.closing_costs_breakdown);
+      }
+    }
+  }, [location.state]);
 
   const handleSaveScenario = async () => {
     if (!currentUser) {

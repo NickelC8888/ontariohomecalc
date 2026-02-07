@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -19,10 +20,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Trash2, Building, DollarSign, Calendar, MapPin, ArrowRightLeft, CheckCircle2 } from 'lucide-react';
+import { Trash2, Building, DollarSign, Calendar, MapPin, ArrowRightLeft, CheckCircle2, ExternalLink } from 'lucide-react';
 import { format } from 'date-fns';
+import { createPageUrl } from '../utils';
 
 export default function SavedScenarios() {
+  const navigate = useNavigate();
   const [selectedIds, setSelectedIds] = useState([]);
   const [isCompareOpen, setIsCompareOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
@@ -165,7 +168,22 @@ export default function SavedScenarios() {
                     )}
                 </div>
               </CardContent>
-              <CardFooter className="pt-2 border-t border-slate-100 mt-auto flex justify-end">
+              <CardFooter className="pt-2 border-t border-slate-100 mt-auto flex justify-between gap-2">
+                <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="gap-2"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(createPageUrl('Home'), {
+                          state: {
+                            loadScenario: scenario
+                          }
+                        });
+                    }}
+                >
+                    <ExternalLink className="w-4 h-4" /> Open
+                </Button>
                 <Button 
                     variant="ghost" 
                     size="sm" 
