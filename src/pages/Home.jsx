@@ -5,6 +5,8 @@ import AffordabilityCalculator from '../components/calculator/AffordabilityCalcu
 import MortgageWizard from '../components/wizard/MortgageWizard';
 
 export default function Home() {
+  const [wizardOpen, setWizardOpen] = useState(false);
+
   return (
     <div className="space-y-8">
       {/* Top Ad Banner */}
@@ -22,7 +24,19 @@ export default function Home() {
         <p className="text-lg text-slate-600 leading-relaxed">
           Understand the full picture of buying a home in Ontario. Calculate mortgage payments, land transfer taxes, and upfront cash requirements in seconds.
         </p>
+        <div className="mt-6">
+          <Button 
+            onClick={() => setWizardOpen(true)}
+            size="lg"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2 shadow-lg hover:shadow-xl transition-all"
+          >
+            <Sparkles className="w-5 h-5" />
+            Try Mortgage Wizard
+          </Button>
+        </div>
       </div>
+      
+      <MortgageWizard open={wizardOpen} onClose={() => setWizardOpen(false)} />
       
       <AffordabilityCalculator />
 
