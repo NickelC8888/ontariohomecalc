@@ -1003,6 +1003,14 @@ export default function AffordabilityCalculator() {
       {/* Results Section */}
       <div className="lg:col-span-5">
         <div className="sticky top-24 space-y-6">
+          {/* Sidebar Ad */}
+          <div className="bg-slate-100 border border-slate-200 rounded-lg p-3 text-center">
+            <p className="text-xs text-slate-400 mb-2">Advertisement</p>
+            <div className="bg-white border border-dashed border-slate-300 rounded h-64 flex items-center justify-center">
+              <span className="text-slate-400 text-xs">AdSense Ad (300x250)</span>
+            </div>
+          </div>
+
           <div className="flex justify-end gap-3 flex-wrap">
              <Button 
                onClick={() => navigate('/Comparison', { 
