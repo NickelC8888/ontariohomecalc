@@ -1,16 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { ArrowLeft, Save } from 'lucide-react';
 import { createPageUrl } from '../utils';
+import { base44 } from "@/api/base44Client";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export default function Comparison() {
   const location = useLocation();
   const initialData = location.state || {};
+  const queryClient = useQueryClient();
+  
+  const [currentUser, setCurrentUser] = useState(null);
+  const [savedCount, setSavedCount] = useState(0);
+  const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+  const [savingScenarioIndex, setSavingScenarioIndex] = useState(null);
+  const [scenarioName, setScenarioName] = useState("");
 
   const [scenarios, setScenarios] = useState([
     {
@@ -53,6 +63,31 @@ export default function Comparison() {
       isFirstTimeBuyer: initialData.isFirstTimeBuyer || true,
     }
   ]);
+
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const user = await base44.auth.me();
+        setCurrentUser(user);
+        const savedScenarios = await base44.entities.Scenario.filter({ created_by: user.email });
+        setSavedCount(savedScenarios.length);
+      } catch (error) {
+        setCurrentUser(null);
+      }
+    };
+    loadUser();
+  }, []);
+
+  const saveScenarioMutation = useMutation({
+    mutationFn: (data) => base44.entities.Scenario.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['scenarios'] });
+      setSavedCount(prev => prev + 1);
+      setSaveDialogOpen(false);
+      setScenarioName("");
+      alert("Scenario saved successfully!");
+    },
+  });
 
   const formatCurrency = (val) => 
     new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(val);
@@ -145,6 +180,71 @@ export default function Comparison() {
       const newScenarios = [...prev];
       newScenarios[index] = { ...newScenarios[index], [field]: value };
       return newScenarios;
+    });
+  };
+
+  const handleSaveScenario = (index) => {
+    if (!currentUser) {
+      if (confirm("You need to sign up to save scenarios. Would you like to sign up now?")) {
+        base44.auth.redirectToLogin(window.location.pathname);
+      }
+      return;
+    }
+
+    if (!currentUser.first_name || !currentUser.last_name) {
+      if (confirm("Please complete your profile before saving scenarios. Go to profile now?")) {
+        window.location.href = createPageUrl('Profile');
+      }
+      return;
+    }
+
+    if (savedCount >= 3) {
+      alert("You can only save up to 3 scenarios. Please delete an existing scenario to save a new one.");
+      return;
+    }
+
+    setSavingScenarioIndex(index);
+    setScenarioName(scenarios[index].name);
+    setSaveDialogOpen(true);
+  };
+
+  const confirmSaveScenario = () => {
+    if (!scenarioName.trim()) return;
+
+    const scenario = scenarios[savingScenarioIndex];
+    const downPaymentAmount = scenario.price * (scenario.downPaymentPercent / 100);
+    const mortgageInsurance = calculateCMHC(scenario.price, scenario.downPaymentPercent);
+    const totalMortgageAmount = (scenario.price - downPaymentAmount) + mortgageInsurance;
+    const monthlyPayment = calculatePayment(totalMortgageAmount, scenario.interestRate, scenario.amortization);
+    const totalLTT = calculateTotalLTT(scenario.price, scenario.isToronto, scenario.isFirstTimeBuyer);
+    const closingCosts = 2300;
+    const STRESS_TEST_BENCHMARK = 5.25;
+    const stressTestRate = Math.max(scenario.interestRate + 2, STRESS_TEST_BENCHMARK);
+    const stressTestPayment = calculatePayment(totalMortgageAmount, stressTestRate, scenario.amortization);
+
+    saveScenarioMutation.mutate({
+      name: scenarioName,
+      property_price: scenario.price,
+      down_payment_percent: scenario.downPaymentPercent,
+      interest_rate: scenario.interestRate,
+      amortization: scenario.amortization,
+      mortgage_term: scenario.mortgageTerm,
+      mortgage_type: scenario.mortgageType,
+      lender_name: scenario.lenderName,
+      is_toronto: scenario.isToronto,
+      is_first_time_buyer: scenario.isFirstTimeBuyer,
+      closing_costs: closingCosts,
+      closing_costs_breakdown: {
+        legal: 1500,
+        appraisal: 300,
+        inspection: 500
+      },
+      mortgage_insurance: mortgageInsurance,
+      stress_test_rate: stressTestRate,
+      stress_test_payment: stressTestPayment,
+      monthly_payment: monthlyPayment,
+      total_ltt: totalLTT,
+      total_cash_needed: downPaymentAmount + totalLTT + closingCosts
     });
   };
 
@@ -373,6 +473,16 @@ export default function Comparison() {
           </div>
 
         </CardContent>
+        <CardFooter className="pt-2 border-t border-slate-100">
+          <Button 
+            onClick={() => handleSaveScenario(index)}
+            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white gap-2"
+            disabled={savedCount >= 3}
+          >
+            <Save className="w-4 h-4" />
+            {savedCount >= 3 ? 'Limit Reached (3/3)' : `Save Scenario (${savedCount}/3)`}
+          </Button>
+        </CardFooter>
       </Card>
     );
   };
@@ -411,6 +521,38 @@ export default function Comparison() {
           <span className="text-slate-400 text-sm">AdSense Ad Space (728x90)</span>
         </div>
       </div>
+
+      {/* Save Scenario Dialog */}
+      <Dialog open={saveDialogOpen} onOpenChange={setSaveDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Save Scenario</DialogTitle>
+            <DialogDescription>
+              Give this scenario a name to save it for later comparison.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="name" className="text-right">
+                Name
+              </Label>
+              <Input
+                id="name"
+                placeholder="e.g. Dream Condo"
+                value={scenarioName}
+                onChange={(e) => setScenarioName(e.target.value)}
+                className="col-span-3"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSaveDialogOpen(false)}>Cancel</Button>
+            <Button onClick={confirmSaveScenario} disabled={!scenarioName.trim() || saveScenarioMutation.isPending}>
+              {saveScenarioMutation.isPending ? "Saving..." : "Save Scenario"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       </div>
       );
       }
