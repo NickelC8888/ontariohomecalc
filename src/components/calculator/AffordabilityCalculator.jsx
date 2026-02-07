@@ -801,7 +801,7 @@ export default function AffordabilityCalculator() {
                             <Select 
                               value={lenderName} 
                               onValueChange={(name) => {
-                                const selected = BANK_RATES.find(b => b.name === name && b.type === mortgageType);
+                                const selected = bankRates.find(b => b.name === name && b.type === mortgageType);
                                 if (selected) {
                                   setLenderName(selected.name);
                                   setInterestRate(selected.rate);
@@ -812,7 +812,7 @@ export default function AffordabilityCalculator() {
                                 <SelectValue placeholder="Click to select additional Interest Rate and Source" />
                               </SelectTrigger>
                               <SelectContent>
-                                {BANK_RATES
+                                {bankRates
                                   .filter(bank => bank.type === mortgageType)
                                   .sort((a, b) => a.rate - b.rate)
                                   .slice(4, 9)
@@ -824,7 +824,9 @@ export default function AffordabilityCalculator() {
                               </SelectContent>
                             </Select>
                           </div>
-                        </div>
+                          </>
+                          )}
+                          </div>
                      ) : (
                         <div className="relative">
                             <Input 
