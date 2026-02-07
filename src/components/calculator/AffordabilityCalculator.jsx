@@ -30,6 +30,28 @@ export default function AffordabilityCalculator() {
   const [isToronto, setIsToronto] = useState(true);
   const [isFirstTimeBuyer, setIsFirstTimeBuyer] = useState(true);
   
+  // Bank Rates Data
+  const BANK_RATES = [
+    // Fixed Rates
+    { name: "RBC", rate: 4.84, type: "fixed" },
+    { name: "TD", rate: 4.99, type: "fixed" },
+    { name: "Scotiabank", rate: 5.09, type: "fixed" },
+    { name: "BMO", rate: 4.79, type: "fixed" },
+    { name: "CIBC", rate: 4.89, type: "fixed" },
+    { name: "National Bank", rate: 4.94, type: "fixed" },
+    { name: "EQ Bank", rate: 4.69, type: "fixed" },
+    { name: "Tangerine", rate: 4.74, type: "fixed" },
+    // Variable Rates
+    { name: "RBC", rate: 6.35, type: "variable" },
+    { name: "TD", rate: 6.45, type: "variable" },
+    { name: "Scotiabank", rate: 6.50, type: "variable" },
+    { name: "BMO", rate: 6.30, type: "variable" },
+    { name: "CIBC", rate: 6.40, type: "variable" },
+    { name: "National Bank", rate: 6.45, type: "variable" },
+    { name: "EQ Bank", rate: 6.10, type: "variable" },
+    { name: "Tangerine", rate: 6.15, type: "variable" }
+  ];
+  
   // Mortgage Insurance is always auto-calculated
   
   // Deposit Amount
@@ -58,28 +80,7 @@ export default function AffordabilityCalculator() {
   });
   const [isSendingEmail, setIsSendingEmail] = useState(false);
 
-  // Constants & Bank Data
-  const BANK_RATES = [
-    // Fixed Rates
-    { name: "RBC", rate: 4.84, type: "fixed" },
-    { name: "TD", rate: 4.99, type: "fixed" },
-    { name: "Scotiabank", rate: 5.09, type: "fixed" },
-    { name: "BMO", rate: 4.79, type: "fixed" },
-    { name: "CIBC", rate: 4.89, type: "fixed" },
-    { name: "National Bank", rate: 4.94, type: "fixed" },
-    { name: "EQ Bank", rate: 4.69, type: "fixed" },
-    { name: "Tangerine", rate: 4.74, type: "fixed" },
-    // Variable Rates
-    { name: "RBC", rate: 6.35, type: "variable" },
-    { name: "TD", rate: 6.45, type: "variable" },
-    { name: "Scotiabank", rate: 6.50, type: "variable" },
-    { name: "BMO", rate: 6.30, type: "variable" },
-    { name: "CIBC", rate: 6.40, type: "variable" },
-    { name: "National Bank", rate: 6.45, type: "variable" },
-    { name: "EQ Bank", rate: 6.10, type: "variable" },
-    { name: "Tangerine", rate: 6.15, type: "variable" }
-  ];
-
+  // Constants
   const STRESS_TEST_BENCHMARK = 5.25;
 
   // Derived Values
@@ -223,7 +224,7 @@ export default function AffordabilityCalculator() {
     loadUser();
   }, []);
 
-  // Load scenario from navigation state
+  // Load scenario or wizard data from navigation state
   useEffect(() => {
     if (location.state?.loadScenario) {
       const scenario = location.state.loadScenario;
@@ -239,6 +240,24 @@ export default function AffordabilityCalculator() {
       setIsFirstTimeBuyer(scenario.is_first_time_buyer);
       if (scenario.closing_costs_breakdown) {
         setClosingCostBreakdown(scenario.closing_costs_breakdown);
+      }
+    } else if (location.state?.wizardData) {
+      const wizard = location.state.wizardData;
+      setPrice(Number(wizard.price));
+      setDownPaymentPercent(wizard.downPaymentPercent);
+      setIsToronto(wizard.isToronto);
+      setIsFirstTimeBuyer(wizard.isFirstTimeBuyer);
+      setMortgageType(wizard.mortgageType);
+      setRateMode(wizard.rateMode);
+      
+      if (wizard.rateMode === 'lender') {
+        const matchingBank = BANK_RATES.find(b => b.type === wizard.mortgageType);
+        if (matchingBank) {
+          setLenderName(matchingBank.name);
+          setInterestRate(matchingBank.rate);
+        }
+      } else {
+        setLenderName('Custom');
       }
     }
   }, [location.state]);
