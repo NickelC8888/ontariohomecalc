@@ -32,27 +32,10 @@ export default function AffordabilityCalculator() {
   const [isToronto, setIsToronto] = useState(true);
   const [isFirstTimeBuyer, setIsFirstTimeBuyer] = useState(true);
   
-  // Bank Rates Data
-  const BANK_RATES = [
-    // Fixed Rates
-    { name: "RBC", rate: 4.84, type: "fixed" },
-    { name: "TD", rate: 4.99, type: "fixed" },
-    { name: "Scotiabank", rate: 5.09, type: "fixed" },
-    { name: "BMO", rate: 4.79, type: "fixed" },
-    { name: "CIBC", rate: 4.89, type: "fixed" },
-    { name: "National Bank", rate: 4.94, type: "fixed" },
-    { name: "EQ Bank", rate: 4.69, type: "fixed" },
-    { name: "Tangerine", rate: 4.74, type: "fixed" },
-    // Variable Rates
-    { name: "RBC", rate: 6.35, type: "variable" },
-    { name: "TD", rate: 6.45, type: "variable" },
-    { name: "Scotiabank", rate: 6.50, type: "variable" },
-    { name: "BMO", rate: 6.30, type: "variable" },
-    { name: "CIBC", rate: 6.40, type: "variable" },
-    { name: "National Bank", rate: 6.45, type: "variable" },
-    { name: "EQ Bank", rate: 6.10, type: "variable" },
-    { name: "Tangerine", rate: 6.15, type: "variable" }
-  ];
+  // Live Rates State
+  const [bankRates, setBankRates] = useState([]);
+  const [ratesLoading, setRatesLoading] = useState(true);
+  const [ratesLastUpdated, setRatesLastUpdated] = useState(null);
   
   // Mortgage Insurance is always auto-calculated
   
