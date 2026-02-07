@@ -185,16 +185,13 @@ export default function Comparison() {
 
   const handleSaveScenario = (index) => {
     if (!currentUser) {
-      if (confirm("You need to sign up to save scenarios. Would you like to sign up now?")) {
-        base44.auth.redirectToLogin(window.location.pathname);
-      }
+      base44.auth.redirectToLogin(createPageUrl('Profile'));
       return;
     }
 
-    if (!currentUser.first_name || !currentUser.last_name) {
-      if (confirm("Please complete your profile before saving scenarios. Go to profile now?")) {
-        window.location.href = createPageUrl('Profile');
-      }
+    if (!currentUser.first_name || !currentUser.last_name || !currentUser.telephone) {
+      alert("Please complete your profile before saving scenarios.");
+      window.location.href = createPageUrl('Profile');
       return;
     }
 

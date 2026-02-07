@@ -245,13 +245,13 @@ export default function AffordabilityCalculator() {
 
   const handleSaveScenario = async () => {
     if (!currentUser) {
-      base44.auth.redirectToLogin(window.location.pathname);
+      base44.auth.redirectToLogin(createPageUrl('Profile'));
       return;
     }
 
-    if (!currentUser.first_name || !currentUser.last_name) {
+    if (!currentUser.first_name || !currentUser.last_name || !currentUser.telephone) {
       alert("Please complete your profile before saving scenarios.");
-      navigate('/Profile');
+      navigate(createPageUrl('Profile'));
       return;
     }
 
