@@ -740,8 +740,8 @@ export default function AffordabilityCalculator() {
                                 onClick={() => {
                                     setRateMode('lender');
                                     // Re-apply current selected lender rate for current type
-                                    const match = BANK_RATES.find(b => b.name === lenderName && b.type === mortgageType) 
-                                        || BANK_RATES.find(b => b.type === mortgageType);
+                                    const match = bankRates.find(b => b.name === lenderName && b.type === mortgageType) 
+                                        || bankRates.find(b => b.type === mortgageType);
                                     if (match) {
                                         setLenderName(match.name);
                                         setInterestRate(match.rate);
