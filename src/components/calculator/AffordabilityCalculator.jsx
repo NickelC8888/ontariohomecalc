@@ -701,14 +701,14 @@ export default function AffordabilityCalculator() {
                                 onClick={() => {
                                     setMortgageType(type);
                                     // Reset lender if current lender doesn't support new type (optional, but good UX)
-                                    if (rateMode === 'lender') {
-                                        const firstMatch = BANK_RATES.find(b => b.type === type);
+                                    if (rateMode === 'lender' && bankRates.length > 0) {
+                                        const firstMatch = bankRates.find(b => b.type === type);
                                         if (firstMatch) {
                                             setLenderName(firstMatch.name);
                                             setInterestRate(firstMatch.rate);
                                         }
                                     }
-                                }}
+                                    }}
                                 className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-all capitalize ${
                                     mortgageType === type 
                                     ? 'bg-white text-slate-900 shadow-sm' 
