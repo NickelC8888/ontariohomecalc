@@ -274,8 +274,8 @@ export default function AffordabilityCalculator() {
       setMortgageType(wizard.mortgageType);
       setRateMode(wizard.rateMode);
       
-      if (wizard.rateMode === 'lender') {
-        const matchingBank = BANK_RATES.find(b => b.type === wizard.mortgageType);
+      if (wizard.rateMode === 'lender' && bankRates.length > 0) {
+        const matchingBank = bankRates.find(b => b.type === wizard.mortgageType);
         if (matchingBank) {
           setLenderName(matchingBank.name);
           setInterestRate(matchingBank.rate);
