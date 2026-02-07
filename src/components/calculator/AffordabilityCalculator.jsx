@@ -1078,18 +1078,29 @@ export default function AffordabilityCalculator() {
 
           <div className="flex justify-end gap-3 flex-wrap">
              <Button 
-               onClick={() => navigate('/Comparison', { 
-                 state: { 
-                   price, 
-                   downPaymentPercent, 
-                   interestRate, 
-                   amortization, 
-                   mortgageTerm, 
-                   mortgageType,
-                   isToronto,
-                   isFirstTimeBuyer
-                 } 
-               })}
+               onClick={() => {
+                 if (!currentUser) {
+                   base44.auth.redirectToLogin(createPageUrl('Profile'));
+                   return;
+                 }
+                 if (!currentUser.first_name || !currentUser.last_name || !currentUser.telephone) {
+                   alert("Please complete your profile first.");
+                   navigate(createPageUrl('Profile'));
+                   return;
+                 }
+                 navigate('/Comparison', { 
+                   state: { 
+                     price, 
+                     downPaymentPercent, 
+                     interestRate, 
+                     amortization, 
+                     mortgageTerm, 
+                     mortgageType,
+                     isToronto,
+                     isFirstTimeBuyer
+                   } 
+                 });
+               }}
                variant="outline"
                className="gap-2"
              >
@@ -1097,7 +1108,18 @@ export default function AffordabilityCalculator() {
                Compare Scenarios
              </Button>
              <Button 
-               onClick={() => setIsEmailDialogOpen(true)}
+               onClick={() => {
+                 if (!currentUser) {
+                   base44.auth.redirectToLogin(createPageUrl('Profile'));
+                   return;
+                 }
+                 if (!currentUser.first_name || !currentUser.last_name || !currentUser.telephone) {
+                   alert("Please complete your profile first.");
+                   navigate(createPageUrl('Profile'));
+                   return;
+                 }
+                 setIsEmailDialogOpen(true);
+               }}
                className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2"
              >
                <Mail className="w-4 h-4" />
@@ -1106,16 +1128,15 @@ export default function AffordabilityCalculator() {
              <Button 
                onClick={() => {
                  if (!currentUser) {
-                   if (confirm("You need to sign up to save scenarios. Would you like to sign up now?")) {
-                     base44.auth.redirectToLogin(window.location.pathname);
-                   }
-                 } else if (!currentUser.first_name || !currentUser.last_name) {
-                   if (confirm("Please complete your profile before saving scenarios. Go to profile now?")) {
-                     navigate('/Profile');
-                   }
-                 } else {
-                   setIsSaveDialogOpen(true);
+                   base44.auth.redirectToLogin(createPageUrl('Profile'));
+                   return;
                  }
+                 if (!currentUser.first_name || !currentUser.last_name || !currentUser.telephone) {
+                   alert("Please complete your profile first.");
+                   navigate(createPageUrl('Profile'));
+                   return;
+                 }
+                 setIsSaveDialogOpen(true);
                }}
                className="bg-slate-800 hover:bg-slate-900 text-white gap-2"
              >
