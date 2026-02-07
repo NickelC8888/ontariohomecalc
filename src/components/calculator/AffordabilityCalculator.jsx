@@ -826,7 +826,7 @@ export default function AffordabilityCalculator() {
                           </div>
                           </>
                           )}
-                          </div>
+                        </div>
                      ) : (
                         <div className="relative">
                             <Input 
