@@ -1,21 +1,23 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { base44 } from "@/api/base44Client";
-import { User, Mail, Phone, MapPin, Save, Loader2 } from 'lucide-react';
+import { User, Mail, Phone, Save, Loader2, UserCircle } from 'lucide-react';
 import { toast } from "sonner";
+import { createPageUrl } from '../utils';
 
 export default function Profile() {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [isNewUser, setIsNewUser] = useState(false);
   const [formData, setFormData] = useState({
     first_name: "",
     last_name: "",
-    address: "",
     telephone: ""
   });
 
@@ -27,15 +29,16 @@ export default function Profile() {
     try {
       const currentUser = await base44.auth.me();
       setUser(currentUser);
+      const isIncomplete = !currentUser.first_name || !currentUser.last_name || !currentUser.telephone;
+      setIsNewUser(isIncomplete);
       setFormData({
         first_name: currentUser.first_name || "",
         last_name: currentUser.last_name || "",
-        address: currentUser.address || "",
         telephone: currentUser.telephone || ""
       });
     } catch (error) {
       console.error("Failed to load user:", error);
-      toast.error("Failed to load profile");
+      base44.auth.redirectToLogin(window.location.pathname);
     } finally {
       setLoading(false);
     }
@@ -44,15 +47,28 @@ export default function Profile() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.first_name.trim() || !formData.last_name.trim()) {
-      toast.error("First Name and Last Name are required");
+    if (!formData.first_name.trim() || !formData.last_name.trim() || !formData.telephone.trim()) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    const phoneRegex = /^[\d\s\-\(\)]+$/;
+    if (!phoneRegex.test(formData.telephone)) {
+      toast.error("Please enter a valid telephone number");
       return;
     }
 
     setSaving(true);
     try {
       await base44.auth.updateMe(formData);
-      toast.success("Profile updated successfully");
+      
+      if (isNewUser) {
+        toast.success("Profile completed successfully! You can now save scenarios.");
+        navigate(createPageUrl('Home'));
+      } else {
+        toast.success("Profile updated successfully");
+      }
+      setIsNewUser(false);
       loadUser();
     } catch (error) {
       console.error("Failed to update profile:", error);
@@ -72,15 +88,27 @@ export default function Profile() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-8">
+      {isNewUser && (
+        <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-6 text-center">
+          <UserCircle className="w-16 h-16 mx-auto text-emerald-600 mb-3" />
+          <h2 className="text-2xl font-bold text-emerald-900 mb-2">Welcome to OntarioHomeCalc!</h2>
+          <p className="text-emerald-700">Complete your profile to start saving and comparing mortgage scenarios</p>
+        </div>
+      )}
+
       <div>
-        <h1 className="text-3xl font-bold text-slate-900">My Profile</h1>
-        <p className="text-slate-500 mt-1">Manage your personal information</p>
+        <h1 className="text-3xl font-bold text-slate-900">{isNewUser ? 'Complete Your Profile' : 'My Profile'}</h1>
+        <p className="text-slate-500 mt-1">
+          {isNewUser ? 'Please provide your information to unlock all features' : 'Manage your personal information'}
+        </p>
       </div>
 
       <Card className="border-none shadow-lg">
         <CardHeader>
           <CardTitle className="text-2xl text-slate-800">Personal Information</CardTitle>
-          <CardDescription>Update your profile details</CardDescription>
+          <CardDescription>
+            {isNewUser ? 'All fields are required to save scenarios' : 'Update your profile details'}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -134,32 +162,19 @@ export default function Profile() {
             <div className="space-y-2">
               <Label className="text-base font-semibold text-slate-700 flex items-center gap-2">
                 <Phone className="w-4 h-4" />
-                Telephone Number
+                Telephone Number <span className="text-red-500">*</span>
               </Label>
               <Input 
                 type="tel"
                 value={formData.telephone}
                 onChange={(e) => setFormData({...formData, telephone: e.target.value})}
                 placeholder="(416) 555-1234"
-              />
-            </div>
-
-            {/* Address */}
-            <div className="space-y-2">
-              <Label className="text-base font-semibold text-slate-700 flex items-center gap-2">
-                <MapPin className="w-4 h-4" />
-                Address
-              </Label>
-              <Textarea 
-                value={formData.address}
-                onChange={(e) => setFormData({...formData, address: e.target.value})}
-                placeholder="Enter your address"
-                rows={3}
+                required
               />
             </div>
 
             {/* Submit Button */}
-            <div className="pt-4">
+            <div className="pt-4 space-y-3">
               <Button 
                 type="submit" 
                 className="w-full bg-emerald-600 hover:bg-emerald-700 text-white gap-2"
@@ -173,10 +188,21 @@ export default function Profile() {
                 ) : (
                   <>
                     <Save className="w-4 h-4" />
-                    Save Profile
+                    {isNewUser ? 'Complete Profile & Continue' : 'Save Profile'}
                   </>
                 )}
               </Button>
+              
+              {!isNewUser && (
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => navigate(createPageUrl('Home'))}
+                >
+                  Back to Calculator
+                </Button>
+              )}
             </div>
           </form>
         </CardContent>
