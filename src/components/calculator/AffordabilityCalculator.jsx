@@ -727,7 +727,12 @@ export default function AffordabilityCalculator() {
                         <div>
                             <Label className="text-slate-700 font-medium">Interest Rate Source</Label>
                             <p className="text-xs text-slate-500 mt-0.5">
-                                {rateMode === 'lender' ? 'Lowest Competitive Rates Shown' : 'Input Your Own Interest Rate'}
+                                {rateMode === 'lender' ? 'Live Rates from Canadian Lenders' : 'Input Your Own Interest Rate'}
+                                {ratesLastUpdated && rateMode === 'lender' && (
+                                  <span className="block text-emerald-600 font-medium">
+                                    Updated: {new Date(ratesLastUpdated).toLocaleString()}
+                                  </span>
+                                )}
                             </p>
                         </div>
                         <div className="flex bg-slate-100 rounded-lg p-0.5">
