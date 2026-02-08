@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
 import ResultsDisplay from './ResultsDisplay';
 import AmortizationSchedule from './AmortizationSchedule';
+import PropertySearch from './PropertySearch';
 
 export default function AffordabilityCalculator() {
   const navigate = useNavigate();
@@ -355,6 +356,15 @@ export default function AffordabilityCalculator() {
     return true;
   };
 
+  const handlePropertyFound = (propertyData) => {
+    if (propertyData.price) {
+      setPrice(propertyData.price);
+    }
+    if (propertyData.isToronto !== undefined) {
+      setIsToronto(propertyData.isToronto);
+    }
+  };
+
   const handleSendEmail = async () => {
     if (!validateEmailForm()) return;
     
@@ -434,6 +444,7 @@ export default function AffordabilityCalculator() {
     <div className="grid lg:grid-cols-12 gap-8">
       {/* Input Section */}
       <div className="lg:col-span-7 space-y-6">
+        <PropertySearch onPropertyFound={handlePropertyFound} />
         <Card className="border-none shadow-lg bg-white">
           <CardHeader>
             <CardTitle className="text-2xl text-slate-800">Property Details</CardTitle>
