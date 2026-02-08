@@ -1,9 +1,44 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Calculator, Home as HomeIcon, MapPin } from 'lucide-react';
+import { Calculator, Home as HomeIcon, MapPin, User, LogOut, LogIn } from 'lucide-react';
 import { createPageUrl } from './utils';
+import { base44 } from '@/api/base44Client';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function Layout({ children }) {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const currentUser = await base44.auth.me();
+        setUser(currentUser);
+      } catch (error) {
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadUser();
+  }, []);
+
+  const handleSignOut = () => {
+    base44.auth.logout(createPageUrl('Home'));
+  };
+
+  const handleSignIn = () => {
+    base44.auth.redirectToLogin(window.location.pathname);
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
       {/* Header */}
@@ -18,23 +53,68 @@ export default function Layout({ children }) {
             </span>
           </Link>
           
-          <nav className="hidden md:flex items-center gap-6">
-            <Link 
-                to={createPageUrl('SavedScenarios')}
-                className="text-sm font-medium text-slate-600 hover:text-emerald-600 transition-colors"
-            >
-                My Scenarios
-            </Link>
-            <Link 
-                to={createPageUrl('Profile')}
-                className="text-sm font-medium text-slate-600 hover:text-emerald-600 transition-colors"
-            >
-                Profile
-            </Link>
-            <div className="flex items-center text-sm font-medium text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
+          <nav className="flex items-center gap-6">
+            {user && (
+              <>
+                <Link 
+                    to={createPageUrl('SavedScenarios')}
+                    className="hidden md:block text-sm font-medium text-slate-600 hover:text-emerald-600 transition-colors"
+                >
+                    My Scenarios
+                </Link>
+                <Link 
+                    to={createPageUrl('Profile')}
+                    className="hidden md:block text-sm font-medium text-slate-600 hover:text-emerald-600 transition-colors"
+                >
+                    Profile
+                </Link>
+              </>
+            )}
+            <div className="hidden md:flex items-center text-sm font-medium text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
               <MapPin className="w-3 h-3 mr-1 text-emerald-600" />
               Ontario, Canada
             </div>
+
+            {!loading && (
+              <>
+                {user ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" className="gap-2">
+                        <User className="w-4 h-4" />
+                        <span className="hidden sm:inline">{user.full_name || user.email}</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56">
+                      <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                        <Link to={createPageUrl('Profile')} className="cursor-pointer">
+                          <User className="w-4 h-4 mr-2" />
+                          Profile
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to={createPageUrl('SavedScenarios')} className="cursor-pointer">
+                          <Calculator className="w-4 h-4 mr-2" />
+                          My Scenarios
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-red-600">
+                        <LogOut className="w-4 h-4 mr-2" />
+                        Sign Out
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  <Button onClick={handleSignIn} className="bg-emerald-600 hover:bg-emerald-700 gap-2">
+                    <LogIn className="w-4 h-4" />
+                    Sign In
+                  </Button>
+                )}
+              </>
+            )}
           </nav>
         </div>
       </header>
