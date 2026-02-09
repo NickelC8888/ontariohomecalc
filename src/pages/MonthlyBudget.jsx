@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { DollarSign, Home, Wifi, Phone, Tv, PiggyBank, TrendingUp, AlertCircle, CheckCircle, PieChart } from 'lucide-react';
+import { DollarSign, Home, Wifi, Phone, Tv, PiggyBank, TrendingUp, AlertCircle, CheckCircle, PieChart, Car, Bus } from 'lucide-react';
 import { Progress } from "@/components/ui/progress";
 
 export default function MonthlyBudget() {
@@ -29,6 +29,7 @@ export default function MonthlyBudget() {
     savings: 0,
     monthlyIncome: 0
   });
+  const [transportationType, setTransportationType] = useState('car'); // 'car' or 'transit'
 
   useEffect(() => {
     const loadUser = async () => {
@@ -294,14 +295,37 @@ export default function MonthlyBudget() {
                     />
                   </div>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2 col-span-2">
                   <Label>Transportation</Label>
+                  <div className="flex gap-2 mb-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant={transportationType === 'car' ? 'default' : 'outline'}
+                      onClick={() => setTransportationType('car')}
+                      className="flex-1"
+                    >
+                      <Car className="w-3 h-3 mr-1" />
+                      Car Payment
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant={transportationType === 'transit' ? 'default' : 'outline'}
+                      onClick={() => setTransportationType('transit')}
+                      className="flex-1"
+                    >
+                      <Bus className="w-3 h-3 mr-1" />
+                      Public Transit
+                    </Button>
+                  </div>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">$</span>
                     <Input 
                       type="number"
                       value={budget.transportation || ''}
                       onChange={(e) => handleInputChange('transportation', e.target.value)}
+                      placeholder={transportationType === 'car' ? 'Monthly car payment + insurance + gas' : 'Monthly transit pass'}
                       className="pl-7"
                     />
                   </div>
