@@ -52,6 +52,7 @@ import Home from './pages/Home';
 import Profile from './pages/Profile';
 import Registration from './pages/Registration';
 import SavedScenarios from './pages/SavedScenarios';
+import MonthlyBudget from './pages/MonthlyBudget';
 import __Layout from './Layout.jsx';
 
 
@@ -61,6 +62,7 @@ export const PAGES = {
     "Profile": Profile,
     "Registration": Registration,
     "SavedScenarios": SavedScenarios,
+    "MonthlyBudget": MonthlyBudget,
 }
 
 export const pagesConfig = {

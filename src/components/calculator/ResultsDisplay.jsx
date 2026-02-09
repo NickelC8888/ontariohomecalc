@@ -5,7 +5,8 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recha
 import { DollarSign, ArrowRight, Building, PiggyBank, Gavel } from 'lucide-react';
 import { motion } from "framer-motion";
 
-export default function ResultsDisplay({ 
+export default function ResultsDisplay({
+  propertyPrice, 
   propertyPrice,
   mortgagePayment, 
   landTransferTax, 
@@ -35,7 +36,7 @@ export default function ResultsDisplay({
     new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(val);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Monthly Payment Highlight */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}

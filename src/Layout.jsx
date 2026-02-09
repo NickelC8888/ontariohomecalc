@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Calculator, Home as HomeIcon, MapPin, User, LogOut, LogIn } from 'lucide-react';
+import { Calculator, Home as HomeIcon, MapPin, User, LogOut, LogIn, DollarSign } from 'lucide-react';
 import { createPageUrl } from './utils';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
@@ -63,6 +63,12 @@ export default function Layout({ children }) {
                     My Scenarios
                 </Link>
                 <Link 
+                    to={createPageUrl('MonthlyBudget')}
+                    className="hidden md:block text-sm font-medium text-slate-600 hover:text-emerald-600 transition-colors"
+                >
+                    Budget
+                </Link>
+                <Link 
                     to={createPageUrl('Profile')}
                     className="hidden md:block text-sm font-medium text-slate-600 hover:text-emerald-600 transition-colors"
                 >
@@ -98,6 +104,12 @@ export default function Layout({ children }) {
                         <Link to={createPageUrl('SavedScenarios')} className="cursor-pointer">
                           <Calculator className="w-4 h-4 mr-2" />
                           My Scenarios
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to={createPageUrl('MonthlyBudget')} className="cursor-pointer">
+                          <DollarSign className="w-4 h-4 mr-2" />
+                          Monthly Budget
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
