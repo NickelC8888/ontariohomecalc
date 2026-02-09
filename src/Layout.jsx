@@ -109,6 +109,12 @@ export default function Layout({ children }) {
                       <DropdownMenuItem asChild>
                         <Link to={createPageUrl('MonthlyBudget')} className="cursor-pointer">
                           <DollarSign className="w-4 h-4 mr-2" />
+                          Budget
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to={createPageUrl('MonthlyBudget')} className="cursor-pointer">
+                          <DollarSign className="w-4 h-4 mr-2" />
                           Monthly Budget
                         </Link>
                       </DropdownMenuItem>
