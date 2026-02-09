@@ -1,17 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { DollarSign, Home, Wifi, Phone, Tv, PiggyBank, TrendingUp, AlertCircle, CheckCircle, PieChart, Car, Bus } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { DollarSign, Home, Wifi, Phone, Tv, PiggyBank, TrendingUp, AlertCircle, CheckCircle, PieChart, Car, Bus, Save, LineChart, Lightbulb } from 'lucide-react';
 import { Progress } from "@/components/ui/progress";
+import { LineChart as RechartsLineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from 'recharts';
+import { format, subMonths } from 'date-fns';
 
 export default function MonthlyBudget() {
+  const queryClient = useQueryClient();
   const [currentUser, setCurrentUser] = useState(null);
   const [selectedScenario, setSelectedScenario] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   // Budget inputs
   const [budget, setBudget] = useState({
@@ -51,6 +56,25 @@ export default function MonthlyBudget() {
     },
     initialData: [],
     enabled: !!currentUser,
+  });
+
+  const { data: budgetHistory = [] } = useQuery({
+    queryKey: ['budgetHistory', currentUser?.email],
+    queryFn: async () => {
+      if (!currentUser) return [];
+      const snapshots = await base44.entities.BudgetSnapshot.filter({ created_by: currentUser.email }, '-snapshot_date', 12);
+      return snapshots;
+    },
+    enabled: !!currentUser,
+  });
+
+  const saveBudgetMutation = useMutation({
+    mutationFn: async (budgetData) => {
+      return base44.entities.BudgetSnapshot.create(budgetData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['budgetHistory'] });
+    },
   });
 
   const handleScenarioSelect = (scenarioId) => {
@@ -95,6 +119,140 @@ export default function MonthlyBudget() {
     { name: 'Savings', value: budget.savings, icon: PiggyBank, color: 'bg-purple-500' }
   ];
 
+  const handleSaveBudget = async () => {
+    if (!currentUser) {
+      alert('Please sign in to save your budget');
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      await saveBudgetMutation.mutateAsync({
+        snapshot_date: new Date().toISOString().split('T')[0],
+        monthly_income: budget.monthlyIncome,
+        mortgage_payment: budget.mortgagePayment,
+        maintenance_fee: budget.maintenanceFee,
+        property_tax: budget.propertyTax,
+        utilities: budget.utilities,
+        insurance: budget.insurance,
+        cable: budget.cable,
+        internet: budget.internet,
+        telephone: budget.telephone,
+        groceries: budget.groceries,
+        transportation: budget.transportation,
+        transportation_type: transportationType,
+        other_expenses: budget.otherExpenses,
+        savings: budget.savings,
+        total_housing: housingCosts,
+        total_living: livingCosts,
+        total_expenses: totalExpenses,
+        remaining_income: remainingIncome
+      });
+      alert('Budget saved successfully!');
+    } catch (error) {
+      console.error('Failed to save budget:', error);
+      alert('Failed to save budget. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Prepare chart data
+  const chartData = budgetHistory.map(snapshot => ({
+    date: format(new Date(snapshot.snapshot_date), 'MMM yy'),
+    housing: snapshot.total_housing || 0,
+    living: snapshot.total_living || 0,
+    savings: snapshot.savings || 0,
+    income: snapshot.monthly_income || 0,
+    remaining: snapshot.remaining_income || 0
+  })).reverse();
+
+  // Generate recommendations
+  const getRecommendations = () => {
+    const recommendations = [];
+    
+    if (budget.monthlyIncome > 0) {
+      const housingRatio = (housingCosts / budget.monthlyIncome) * 100;
+      const savingsRatio = (budget.savings / budget.monthlyIncome) * 100;
+      const transportRatio = (budget.transportation / budget.monthlyIncome) * 100;
+
+      if (housingRatio > 35) {
+        recommendations.push({
+          type: 'warning',
+          title: 'Housing costs are high',
+          message: `Your housing costs (${housingRatio.toFixed(1)}%) exceed the recommended 30% of income. Consider refinancing or finding ways to reduce utilities and insurance.`,
+          icon: Home
+        });
+      } else if (housingRatio <= 30) {
+        recommendations.push({
+          type: 'success',
+          title: 'Excellent housing budget',
+          message: `Your housing costs (${housingRatio.toFixed(1)}%) are within the ideal range. This leaves room for savings and other goals.`,
+          icon: CheckCircle
+        });
+      }
+
+      if (savingsRatio < 10) {
+        recommendations.push({
+          type: 'warning',
+          title: 'Increase your savings rate',
+          message: `Aim to save at least 20% of your income. You're currently at ${savingsRatio.toFixed(1)}%. Try to reduce discretionary spending by ${formatCurrency((budget.monthlyIncome * 0.2) - budget.savings)}/month.`,
+          icon: PiggyBank
+        });
+      } else if (savingsRatio >= 20) {
+        recommendations.push({
+          type: 'success',
+          title: 'Great savings habit!',
+          message: `You're saving ${savingsRatio.toFixed(1)}% of your income - excellent! Keep this up to build wealth over time.`,
+          icon: TrendingUp
+        });
+      }
+
+      if (transportationType === 'car' && transportRatio > 15) {
+        recommendations.push({
+          type: 'tip',
+          title: 'High transportation costs',
+          message: `Car expenses (${transportRatio.toFixed(1)}%) are above 15% of income. Consider public transit on some days or carpooling to reduce costs by ~${formatCurrency(budget.transportation * 0.3)}/month.`,
+          icon: Car
+        });
+      }
+
+      if (remainingIncome < 0) {
+        recommendations.push({
+          type: 'urgent',
+          title: 'Budget deficit detected',
+          message: `You're spending ${formatCurrency(Math.abs(remainingIncome))} more than you earn. Review discretionary expenses like cable, dining out, and entertainment.`,
+          icon: AlertCircle
+        });
+      }
+
+      if (budgetHistory.length >= 3) {
+        const avgRemaining = budgetHistory.slice(0, 3).reduce((sum, s) => sum + (s.remaining_income || 0), 0) / 3;
+        if (remainingIncome > avgRemaining * 1.2) {
+          recommendations.push({
+            type: 'success',
+            title: 'Budget improving!',
+            message: `Your remaining income has increased significantly compared to your 3-month average. Consider putting the extra ${formatCurrency(remainingIncome - avgRemaining)} toward debt or investments.`,
+            icon: TrendingUp
+          });
+        }
+      }
+    }
+
+    if (recommendations.length === 0) {
+      recommendations.push({
+        type: 'info',
+        title: 'Start tracking your budget',
+        message: 'Enter your income and expenses to get personalized recommendations for improving your financial health.',
+        icon: Lightbulb
+      });
+    }
+
+    return recommendations;
+  };
+
+  const recommendations = getRecommendations();
+
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       <div>
@@ -129,6 +287,15 @@ export default function MonthlyBudget() {
       <div className="grid lg:grid-cols-12 gap-6">
         {/* Input Section */}
         <div className="lg:col-span-7 space-y-6">
+          {/* Save Budget Button */}
+          <Button 
+            onClick={handleSaveBudget} 
+            disabled={isSaving || !currentUser}
+            className="w-full bg-emerald-600 hover:bg-emerald-700 gap-2"
+          >
+            <Save className="w-4 h-4" />
+            {isSaving ? 'Saving...' : 'Save Current Budget Snapshot'}
+          </Button>
           {/* Income */}
           <Card>
             <CardHeader>
@@ -468,23 +635,142 @@ export default function MonthlyBudget() {
               </CardContent>
             </Card>
 
-            {/* Financial Tips */}
-            <Card className="bg-slate-50">
-              <CardContent className="pt-6">
-                <div className="space-y-2 text-sm">
-                  <p className="font-semibold text-slate-900">💡 Financial Tips</p>
-                  <ul className="space-y-1 text-slate-600">
-                    <li>• Housing costs should be ≤ 30% of income</li>
-                    <li>• Aim to save at least 20% monthly</li>
-                    <li>• Keep emergency fund of 3-6 months expenses</li>
-                    <li>• Review and adjust budget quarterly</li>
-                  </ul>
-                </div>
+            {/* Personalized Recommendations */}
+            <Card className="border-2 border-amber-200 bg-amber-50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Lightbulb className="w-5 h-5 text-amber-600" />
+                  Your Recommendations
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {recommendations.map((rec, idx) => {
+                  const Icon = rec.icon;
+                  const colors = {
+                    urgent: 'border-red-200 bg-red-50 text-red-900',
+                    warning: 'border-orange-200 bg-orange-50 text-orange-900',
+                    tip: 'border-blue-200 bg-blue-50 text-blue-900',
+                    success: 'border-emerald-200 bg-emerald-50 text-emerald-900',
+                    info: 'border-slate-200 bg-slate-50 text-slate-900'
+                  };
+                  return (
+                    <div key={idx} className={`p-3 rounded-lg border ${colors[rec.type]}`}>
+                      <div className="flex items-start gap-2">
+                        <Icon className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="font-semibold text-sm">{rec.title}</p>
+                          <p className="text-xs mt-1 opacity-90">{rec.message}</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </CardContent>
             </Card>
           </div>
         </div>
       </div>
+
+      {/* Analytics Section - Historical Data */}
+      {budgetHistory.length > 0 && (
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <LineChart className="w-5 h-5" />
+              Budget Analytics & Trends
+            </CardTitle>
+            <CardDescription>Track your spending patterns over time</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="trends">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="trends">Spending Trends</TabsTrigger>
+                <TabsTrigger value="breakdown">Category Breakdown</TabsTrigger>
+                <TabsTrigger value="income">Income vs Expenses</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="trends" className="space-y-4">
+                <div className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RechartsLineChart data={chartData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" />
+                      <YAxis />
+                      <RechartsTooltip 
+                        formatter={(value) => formatCurrency(value)}
+                        contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                      />
+                      <Legend />
+                      <Line type="monotone" dataKey="housing" stroke="#10b981" strokeWidth={2} name="Housing" />
+                      <Line type="monotone" dataKey="living" stroke="#3b82f6" strokeWidth={2} name="Living" />
+                      <Line type="monotone" dataKey="savings" stroke="#a855f7" strokeWidth={2} name="Savings" />
+                    </RechartsLineChart>
+                  </ResponsiveContainer>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="breakdown" className="space-y-4">
+                <div className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={chartData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" />
+                      <YAxis />
+                      <RechartsTooltip 
+                        formatter={(value) => formatCurrency(value)}
+                        contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                      />
+                      <Legend />
+                      <Bar dataKey="housing" fill="#10b981" name="Housing" />
+                      <Bar dataKey="living" fill="#3b82f6" name="Living" />
+                      <Bar dataKey="savings" fill="#a855f7" name="Savings" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="income" className="space-y-4">
+                <div className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RechartsLineChart data={chartData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" />
+                      <YAxis />
+                      <RechartsTooltip 
+                        formatter={(value) => formatCurrency(value)}
+                        contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                      />
+                      <Legend />
+                      <Line type="monotone" dataKey="income" stroke="#059669" strokeWidth={3} name="Income" />
+                      <Line type="monotone" dataKey="remaining" stroke={chartData.some(d => d.remaining < 0) ? "#ef4444" : "#10b981"} strokeWidth={2} name="Remaining" />
+                    </RechartsLineChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="grid grid-cols-3 gap-4 pt-4 border-t">
+                  <div className="text-center">
+                    <p className="text-xs text-slate-500">Avg Monthly Income</p>
+                    <p className="text-lg font-bold text-emerald-600">
+                      {formatCurrency(chartData.reduce((sum, d) => sum + d.income, 0) / chartData.length)}
+                    </p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-xs text-slate-500">Avg Remaining</p>
+                    <p className="text-lg font-bold text-slate-900">
+                      {formatCurrency(chartData.reduce((sum, d) => sum + d.remaining, 0) / chartData.length)}
+                    </p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-xs text-slate-500">Best Month</p>
+                    <p className="text-lg font-bold text-emerald-600">
+                      {chartData.length > 0 ? chartData.reduce((max, d) => d.remaining > max.remaining ? d : max, chartData[0]).date : 'N/A'}
+                    </p>
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
