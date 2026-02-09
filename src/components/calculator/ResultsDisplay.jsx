@@ -1,12 +1,13 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
-import { DollarSign, ArrowRight, Building, PiggyBank, Gavel } from 'lucide-react';
+import { DollarSign, ArrowRight, Building, PiggyBank, Gavel, Calculator } from 'lucide-react';
 import { motion } from "framer-motion";
+import { createPageUrl } from '@/utils';
 
 export default function ResultsDisplay({
-  propertyPrice, 
   propertyPrice,
   mortgagePayment, 
   landTransferTax, 
@@ -22,6 +23,18 @@ export default function ResultsDisplay({
   monthlyMortgageCost,
   monthlyCMHCCost
 }) {
+  const navigate = useNavigate();
+
+  const handleGoToBudget = () => {
+    navigate(createPageUrl('MonthlyBudget'), {
+      state: {
+        fromCalculator: true,
+        monthlyMortgage: mortgagePayment,
+        propertyPrice: propertyPrice,
+        isToronto: false
+      }
+    });
+  };
   
   const upfrontData = [
     { name: 'Down Payment', value: downPaymentAmount, color: '#059669' }, // Emerald 600
@@ -37,6 +50,15 @@ export default function ResultsDisplay({
 
   return (
     <div className="space-y-4">
+      {/* Budget Button */}
+      <Button 
+        onClick={handleGoToBudget}
+        className="w-full bg-slate-800 hover:bg-slate-900 text-white gap-2"
+      >
+        <Calculator className="w-4 h-4" />
+        Plan Monthly Budget
+      </Button>
+
       {/* Monthly Payment Highlight */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
