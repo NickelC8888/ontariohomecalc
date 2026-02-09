@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { DollarSign, Home, Wifi, Phone, Tv, PiggyBank, TrendingUp, AlertCircle, CheckCircle, PieChart, Car, Bus, Save, LineChart, Lightbulb } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { DollarSign, Home, Wifi, Phone, Tv, PiggyBank, TrendingUp, AlertCircle, CheckCircle, PieChart, Car, Bus, Save, LineChart, Lightbulb, Info } from 'lucide-react';
 import { Progress } from "@/components/ui/progress";
 import { LineChart as RechartsLineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from 'recharts';
 import { format, subMonths } from 'date-fns';
@@ -353,7 +354,47 @@ export default function MonthlyBudget() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label>Property Tax (Monthly)</Label>
+                  <div className="flex items-center gap-1">
+                    <Label>Property Tax (Monthly)</Label>
+                    {selectedScenario && (
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <Info className="w-3 h-3 text-slate-400" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs">
+                            <div className="space-y-2 text-xs">
+                              <p className="font-semibold">Property Tax Calculation</p>
+                              <div className="space-y-1">
+                                <div className="flex justify-between">
+                                  <span>Property Price:</span>
+                                  <span className="font-medium">{formatCurrency(selectedScenario.property_price)}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>Location:</span>
+                                  <span className="font-medium">{selectedScenario.is_toronto ? 'Toronto' : 'Ontario'}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>Tax Rate:</span>
+                                  <span className="font-medium">{selectedScenario.is_toronto ? '0.6135%' : '1.0%'}</span>
+                                </div>
+                                <div className="border-t pt-1 flex justify-between">
+                                  <span>Annual Tax:</span>
+                                  <span className="font-medium">
+                                    {formatCurrency(selectedScenario.property_price * (selectedScenario.is_toronto ? 0.006135 : 0.01))}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>Monthly:</span>
+                                  <span className="font-medium">{formatCurrency(budget.propertyTax)}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    )}
+                  </div>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">$</span>
                     <Input 
