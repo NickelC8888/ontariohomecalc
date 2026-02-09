@@ -10,7 +10,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { DollarSign, Home, Wifi, Phone, Tv, PiggyBank, TrendingUp, AlertCircle, CheckCircle, PieChart, Car, Bus, Save, LineChart, Lightbulb, Info } from 'lucide-react';
 import { Progress } from "@/components/ui/progress";
-import { LineChart as RechartsLineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from 'recharts';
+import { LineChart as RechartsLineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, PieChart as RechartsPieChart, Pie, Cell, RadialBarChart, RadialBar } from 'recharts';
 import { format, subMonths } from 'date-fns';
 
 export default function MonthlyBudget() {
@@ -31,6 +31,7 @@ export default function MonthlyBudget() {
     insurance: 0,
     groceries: 0,
     transportation: 0,
+    entertainment: 0,
     otherExpenses: 0,
     savings: 0,
     monthlyIncome: 0
@@ -109,7 +110,7 @@ export default function MonthlyBudget() {
 
   // Calculations
   const housingCosts = budget.mortgagePayment + budget.maintenanceFee + budget.propertyTax + budget.utilities + budget.insurance;
-  const livingCosts = budget.cable + budget.internet + budget.telephone + budget.groceries + budget.transportation + budget.otherExpenses;
+  const livingCosts = budget.cable + budget.internet + budget.telephone + budget.groceries + budget.transportation + budget.entertainment + budget.otherExpenses;
   const totalExpenses = housingCosts + livingCosts + budget.savings;
   const remainingIncome = budget.monthlyIncome - totalExpenses;
   const budgetHealth = budget.monthlyIncome > 0 ? ((remainingIncome / budget.monthlyIncome) * 100) : 0;
@@ -142,6 +143,7 @@ export default function MonthlyBudget() {
         groceries: budget.groceries,
         transportation: budget.transportation,
         transportation_type: transportationType,
+        entertainment: budget.entertainment,
         other_expenses: budget.otherExpenses,
         savings: budget.savings,
         total_housing: housingCosts,
@@ -539,6 +541,18 @@ export default function MonthlyBudget() {
                   </div>
                 </div>
                 <div className="space-y-2">
+                  <Label>Entertainment</Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">$</span>
+                    <Input 
+                      type="number"
+                      value={budget.entertainment || ''}
+                      onChange={(e) => handleInputChange('entertainment', e.target.value)}
+                      className="pl-7"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
                   <Label>Other Expenses</Label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">$</span>
@@ -585,7 +599,7 @@ export default function MonthlyBudget() {
         {/* Summary Section */}
         <div className="lg:col-span-5">
           <div className="sticky top-24 space-y-6">
-            {/* Budget Health */}
+            {/* Budget Health Gauge */}
             <Card className={`border-2 ${remainingIncome >= 0 ? 'border-emerald-200 bg-emerald-50' : 'border-red-200 bg-red-50'}`}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -598,28 +612,58 @@ export default function MonthlyBudget() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="text-center">
-                  <p className="text-sm text-slate-600 mb-2">Remaining After Expenses</p>
-                  <p className={`text-4xl font-bold ${remainingIncome >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                    {formatCurrency(remainingIncome)}
-                  </p>
-                </div>
-                {budget.monthlyIncome > 0 && (
-                  <div>
-                    <div className="flex justify-between text-sm mb-2">
-                      <span className="text-slate-600">Budget Health</span>
-                      <span className="font-medium">{budgetHealth.toFixed(1)}%</span>
+                {budget.monthlyIncome > 0 ? (
+                  <>
+                    <div className="h-48">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <RadialBarChart 
+                          cx="50%" 
+                          cy="50%" 
+                          innerRadius="60%" 
+                          outerRadius="100%" 
+                          barSize={20}
+                          data={[{ 
+                            name: 'Budget Health', 
+                            value: Math.max(0, Math.min(100, budgetHealth)),
+                            fill: remainingIncome >= 0 ? '#10b981' : '#ef4444'
+                          }]}
+                          startAngle={180}
+                          endAngle={0}
+                        >
+                          <RadialBar
+                            background
+                            dataKey="value"
+                            cornerRadius={10}
+                          />
+                          <text 
+                            x="50%" 
+                            y="50%" 
+                            textAnchor="middle" 
+                            dominantBaseline="middle"
+                            className="text-3xl font-bold"
+                            fill={remainingIncome >= 0 ? '#10b981' : '#ef4444'}
+                          >
+                            {budgetHealth.toFixed(0)}%
+                          </text>
+                        </RadialBarChart>
+                      </ResponsiveContainer>
                     </div>
-                    <Progress 
-                      value={Math.max(0, budgetHealth)} 
-                      className={`h-3 ${remainingIncome >= 0 ? '[&>div]:bg-emerald-600' : '[&>div]:bg-red-600'}`}
-                    />
+                    <div className="text-center">
+                      <p className="text-sm text-slate-600 mb-1">Remaining After Expenses</p>
+                      <p className={`text-2xl font-bold ${remainingIncome >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                        {formatCurrency(remainingIncome)}
+                      </p>
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-sm text-slate-600">Enter your income to see budget health</p>
                   </div>
                 )}
               </CardContent>
             </Card>
 
-            {/* Income vs Expenses */}
+            {/* Monthly Breakdown Pie Chart */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -640,26 +684,32 @@ export default function MonthlyBudget() {
                   </div>
                 </div>
 
-                <div className="space-y-3 pt-4 border-t">
-                  {expenseCategories.map(category => {
-                    const percentage = totalExpenses > 0 ? (category.value / totalExpenses * 100) : 0;
-                    return (
-                      <div key={category.name}>
-                        <div className="flex justify-between items-center mb-1">
-                          <div className="flex items-center gap-2">
-                            <div className={`w-3 h-3 rounded ${category.color}`} />
-                            <span className="text-sm font-medium">{category.name}</span>
-                          </div>
-                          <span className="text-sm font-semibold">{formatCurrency(category.value)}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Progress value={percentage} className="flex-1 h-2" />
-                          <span className="text-xs text-slate-500 w-12 text-right">{percentage.toFixed(0)}%</span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                {totalExpenses > 0 && (
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RechartsPieChart>
+                        <Pie
+                          data={expenseCategories.filter(c => c.value > 0)}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                          outerRadius={80}
+                          fill="#8884d8"
+                          dataKey="value"
+                        >
+                          {expenseCategories.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color.replace('bg-', '#').replace('emerald-500', '10b981').replace('blue-500', '3b82f6').replace('purple-500', 'a855f7')} />
+                          ))}
+                        </Pie>
+                        <RechartsTooltip 
+                          formatter={(value) => formatCurrency(value)}
+                          contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                        />
+                      </RechartsPieChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
 
                 {budget.monthlyIncome > 0 && (
                   <div className="pt-4 border-t space-y-2 text-sm">
