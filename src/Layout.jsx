@@ -12,6 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import AdSenseBanner from '@/components/AdSenseBanner';
 
 export default function Layout({ children }) {
   const [user, setUser] = useState(null);
@@ -41,6 +42,13 @@ export default function Layout({ children }) {
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
+      {/* Top AdSense Banner */}
+      <div className="bg-white border-b border-slate-200">
+        <div className="container mx-auto px-4 py-2">
+          <AdSenseBanner slot="top-banner" format="horizontal" className="min-h-[90px]" />
+        </div>
+      </div>
+
       {/* Header */}
       <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur-md">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
@@ -151,8 +159,27 @@ export default function Layout({ children }) {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8 md:py-12">
-        {children}
+        <div className="flex gap-6">
+          {/* Main Content Area */}
+          <div className="flex-1">
+            {children}
+          </div>
+
+          {/* Right Side AdSense Banner */}
+          <aside className="hidden xl:block w-80 flex-shrink-0">
+            <div className="sticky top-24">
+              <AdSenseBanner slot="sidebar" format="vertical" className="min-h-[600px]" />
+            </div>
+          </aside>
+        </div>
       </main>
+
+      {/* Bottom AdSense Banner */}
+      <div className="bg-white border-t border-slate-200">
+        <div className="container mx-auto px-4 py-4">
+          <AdSenseBanner slot="bottom-banner" format="horizontal" className="min-h-[90px]" />
+        </div>
+      </div>
 
       {/* Footer */}
       <footer className="border-t border-slate-200 bg-white py-8 mt-auto">
