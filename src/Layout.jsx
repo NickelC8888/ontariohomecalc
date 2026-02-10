@@ -57,6 +57,12 @@ export default function Layout({ children }) {
             {user && (
               <>
                 <Link 
+                    to={createPageUrl('Home')}
+                    className="hidden md:block text-sm font-medium text-slate-600 hover:text-emerald-600 transition-colors"
+                >
+                    Calculator
+                </Link>
+                <Link 
                     to={createPageUrl('SavedScenarios')}
                     className="hidden md:block text-sm font-medium text-slate-600 hover:text-emerald-600 transition-colors"
                 >
@@ -66,7 +72,7 @@ export default function Layout({ children }) {
                     to={createPageUrl('MonthlyBudget')}
                     className="hidden md:block text-sm font-medium text-slate-600 hover:text-emerald-600 transition-colors"
                 >
-                    Budget
+                    Monthly Budget Calculator
                 </Link>
                 <Link 
                     to={createPageUrl('Profile')}
@@ -109,7 +115,7 @@ export default function Layout({ children }) {
                       <DropdownMenuItem asChild>
                         <Link to={createPageUrl('MonthlyBudget')} className="cursor-pointer">
                           <DollarSign className="w-4 h-4 mr-2" />
-                          Budget
+                          Monthly Budget Calculator
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
