@@ -49,22 +49,22 @@
  */
 import Comparison from './pages/Comparison';
 import Home from './pages/Home';
+import LandTransferTax from './pages/LandTransferTax';
 import MonthlyBudget from './pages/MonthlyBudget';
 import Profile from './pages/Profile';
 import Registration from './pages/Registration';
 import SavedScenarios from './pages/SavedScenarios';
-import LandTransferTax from './pages/LandTransferTax';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "Comparison": Comparison,
     "Home": Home,
+    "LandTransferTax": LandTransferTax,
     "MonthlyBudget": MonthlyBudget,
     "Profile": Profile,
     "Registration": Registration,
     "SavedScenarios": SavedScenarios,
-    "LandTransferTax": LandTransferTax,
 }
 
 export const pagesConfig = {

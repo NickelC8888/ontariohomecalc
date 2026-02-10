@@ -84,95 +84,92 @@ export default function LandTransferTax() {
         <p className="text-slate-500 mt-2">Calculate Ontario and Toronto land transfer taxes with detailed breakdowns</p>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-8">
-        {/* Input Section */}
-        <div className="space-y-6">
-          <Card className="border-none shadow-lg">
-            <CardHeader>
-              <CardTitle className="text-2xl text-slate-800">Property Details</CardTitle>
-              <CardDescription>Enter your property information</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              
-              {/* Purchase Price */}
-              <div className="space-y-4">
-                <div className="flex justify-between items-end">
-                  <Label className="text-base font-semibold text-slate-700">Purchase Price</Label>
-                  <div className="relative w-40">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span>
-                    <Input 
-                      type="number" 
-                      value={price} 
-                      onChange={(e) => setPrice(Number(e.target.value))}
-                      className="pl-7 text-right font-semibold text-lg"
-                    />
-                  </div>
-                </div>
-                <Slider 
-                  value={[price]} 
-                  min={100000} 
-                  max={3000000} 
-                  step={5000} 
-                  onValueChange={(val) => setPrice(val[0])}
-                  className="py-2"
+      {/* Input Section */}
+      <Card className="border-none shadow-lg">
+        <CardHeader>
+          <CardTitle className="text-2xl text-slate-800">Property Details</CardTitle>
+          <CardDescription>Enter your property information</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          
+          {/* Purchase Price */}
+          <div className="space-y-4">
+            <div className="flex justify-between items-end">
+              <Label className="text-base font-semibold text-slate-700">Purchase Price</Label>
+              <div className="relative w-40">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span>
+                <Input 
+                  type="number" 
+                  value={price} 
+                  onChange={(e) => setPrice(Number(e.target.value))}
+                  className="pl-7 text-right font-semibold text-lg"
                 />
               </div>
+            </div>
+            <Slider 
+              value={[price]} 
+              min={100000} 
+              max={3000000} 
+              step={5000} 
+              onValueChange={(val) => setPrice(val[0])}
+              className="py-2"
+            />
+          </div>
 
-              {/* Toggles */}
-              <div className="bg-slate-50 p-4 rounded-xl space-y-4 border border-slate-100">
-                <div className="flex items-center justify-between">
-                  <Label className="font-medium text-slate-700 cursor-pointer" htmlFor="toronto-switch">
-                    Property in City of Toronto?
-                  </Label>
-                  <Switch 
-                    id="toronto-switch"
-                    checked={isToronto}
-                    onCheckedChange={setIsToronto}
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Label className="font-medium text-slate-700 cursor-pointer" htmlFor="ftb-switch">
-                      First-Time Home Buyer?
-                    </Label>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <Info className="w-4 h-4 text-slate-400" />
-                        </TooltipTrigger>
-                        <TooltipContent className="max-w-xs">
-                          <p className="text-xs">First-time buyers receive rebates: up to $4,000 Ontario rebate and up to $4,475 Toronto rebate (if applicable)</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
-                  <Switch 
-                    id="ftb-switch"
-                    checked={isFirstTimeBuyer}
-                    onCheckedChange={setIsFirstTimeBuyer}
-                  />
-                </div>
+          {/* Toggles */}
+          <div className="bg-slate-50 p-4 rounded-xl space-y-4 border border-slate-100">
+            <div className="flex items-center justify-between">
+              <Label className="font-medium text-slate-700 cursor-pointer" htmlFor="toronto-switch">
+                Property in City of Toronto?
+              </Label>
+              <Switch 
+                id="toronto-switch"
+                checked={isToronto}
+                onCheckedChange={setIsToronto}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Label className="font-medium text-slate-700 cursor-pointer" htmlFor="ftb-switch">
+                  First-Time Home Buyer?
+                </Label>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Info className="w-4 h-4 text-slate-400" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs">
+                      <p className="text-xs">First-time buyers receive rebates: up to $4,000 Ontario rebate and up to $4,475 Toronto rebate (if applicable)</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
+              <Switch 
+                id="ftb-switch"
+                checked={isFirstTimeBuyer}
+                onCheckedChange={setIsFirstTimeBuyer}
+              />
+            </div>
+          </div>
 
-              {/* Total Summary */}
-              <div className="bg-emerald-50 border-2 border-emerald-200 rounded-xl p-6 text-center">
-                <p className="text-sm text-emerald-700 font-medium mb-2">Total Land Transfer Tax</p>
-                <p className="text-4xl font-bold text-emerald-900">{formatCurrency(totalTax)}</p>
-                {(ontarioRebate > 0 || torontoRebate > 0) && (
-                  <p className="text-xs text-emerald-600 mt-2">
-                    Includes first-time buyer rebates
-                  </p>
-                )}
-              </div>
+        </CardContent>
+      </Card>
 
-            </CardContent>
-          </Card>
-        </div>
+      {/* Total Summary */}
+      <div className="bg-emerald-50 border-2 border-emerald-200 rounded-xl p-6 text-center">
+        <p className="text-sm text-emerald-700 font-medium mb-2">Total Land Transfer Tax</p>
+        <p className="text-4xl font-bold text-emerald-900">{formatCurrency(totalTax)}</p>
+        {(ontarioRebate > 0 || torontoRebate > 0) && (
+          <p className="text-xs text-emerald-600 mt-2">
+            Includes first-time buyer rebates
+          </p>
+        )}
+      </div>
 
-        {/* Breakdown Section */}
-        <div className="space-y-6">
-          {/* Ontario LTT */}
-          <Card className="border-2 border-slate-200">
+      {/* Breakdown Section */}
+      <div className={`grid ${isToronto ? 'lg:grid-cols-2' : 'lg:grid-cols-1'} gap-6`}
+        {/* Ontario LTT */}
+        <Card className="border-2 border-slate-200">
             <CardHeader className="bg-slate-50">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-xl text-slate-900">Ontario Land Transfer Tax</CardTitle>
@@ -220,8 +217,8 @@ export default function LandTransferTax() {
             </CardContent>
           </Card>
 
-          {/* Toronto LTT */}
-          {isToronto && (
+        {/* Toronto LTT */}
+        {isToronto && (
             <Card className="border-2 border-blue-200">
               <CardHeader className="bg-blue-50">
                 <div className="flex items-center justify-between">
@@ -268,9 +265,8 @@ export default function LandTransferTax() {
                   </div>
                 </div>
               </CardContent>
-            </Card>
-          )}
-        </div>
+          </Card>
+        )}
       </div>
 
       {/* Info Note */}
