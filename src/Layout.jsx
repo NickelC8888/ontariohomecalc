@@ -63,6 +63,12 @@ export default function Layout({ children }) {
                     Calculator
                 </Link>
                 <Link 
+                    to={createPageUrl('LandTransferTax')}
+                    className="hidden md:block text-sm font-medium text-slate-600 hover:text-emerald-600 transition-colors"
+                >
+                    Land Transfer Tax
+                </Link>
+                <Link 
                     to={createPageUrl('SavedScenarios')}
                     className="hidden md:block text-sm font-medium text-slate-600 hover:text-emerald-600 transition-colors"
                 >
@@ -104,6 +110,12 @@ export default function Layout({ children }) {
                         <Link to={createPageUrl('Profile')} className="cursor-pointer">
                           <User className="w-4 h-4 mr-2" />
                           Profile
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to={createPageUrl('LandTransferTax')} className="cursor-pointer">
+                          <DollarSign className="w-4 h-4 mr-2" />
+                          Land Transfer Tax
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>

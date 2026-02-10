@@ -53,6 +53,7 @@ import MonthlyBudget from './pages/MonthlyBudget';
 import Profile from './pages/Profile';
 import Registration from './pages/Registration';
 import SavedScenarios from './pages/SavedScenarios';
+import LandTransferTax from './pages/LandTransferTax';
 import __Layout from './Layout.jsx';
 
 
@@ -63,6 +64,7 @@ export const PAGES = {
     "Profile": Profile,
     "Registration": Registration,
     "SavedScenarios": SavedScenarios,
+    "LandTransferTax": LandTransferTax,
 }
 
 export const pagesConfig = {
