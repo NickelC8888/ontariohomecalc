@@ -8,6 +8,7 @@ import { base44 } from "@/api/base44Client";
 import { User, Mail, Phone, Save, Loader2, UserCircle } from 'lucide-react';
 import { toast } from "sonner";
 import { createPageUrl } from '../utils';
+import { Switch } from "@/components/ui/switch";
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -18,7 +19,8 @@ export default function Profile() {
   const [formData, setFormData] = useState({
     first_name: "",
     last_name: "",
-    telephone: ""
+    telephone: "",
+    enable_property_lookup: false
   });
 
   useEffect(() => {
@@ -34,7 +36,8 @@ export default function Profile() {
       setFormData({
         first_name: currentUser.first_name || "",
         last_name: currentUser.last_name || "",
-        telephone: currentUser.telephone || ""
+        telephone: currentUser.telephone || "",
+        enable_property_lookup: currentUser.enable_property_lookup || false
       });
     } catch (error) {
       console.error("Failed to load user:", error);
@@ -170,6 +173,25 @@ export default function Profile() {
                 onChange={(e) => setFormData({...formData, telephone: e.target.value})}
                 placeholder="(416) 555-1234"
                 required
+              />
+            </div>
+
+            {/* Property Lookup Toggle */}
+            <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-200">
+              <div className="space-y-0.5">
+                <Label htmlFor="property-lookup" className="text-base font-medium cursor-pointer">
+                  Enable Property Address Lookup
+                </Label>
+                <p className="text-sm text-slate-500">
+                  Show property search feature in the calculator
+                </p>
+              </div>
+              <Switch
+                id="property-lookup"
+                checked={formData.enable_property_lookup}
+                onCheckedChange={(checked) => 
+                  setFormData({ ...formData, enable_property_lookup: checked })
+                }
               />
             </div>
 
