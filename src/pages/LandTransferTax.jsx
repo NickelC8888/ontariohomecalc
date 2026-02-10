@@ -167,7 +167,7 @@ export default function LandTransferTax() {
       </div>
 
       {/* Breakdown Section */}
-      <div className={`grid ${isToronto ? 'lg:grid-cols-2' : 'lg:grid-cols-1'} gap-6`}
+      <div className={`grid ${isToronto ? 'lg:grid-cols-2' : 'lg:grid-cols-1'} gap-6`}>
         {/* Ontario LTT */}
         <Card className="border-2 border-slate-200">
             <CardHeader className="bg-slate-50">
