@@ -185,14 +185,13 @@ export default function LandTransferTax() {
                     <div className="flex justify-between items-start mb-2">
                       <div>
                         <p className="text-sm font-semibold text-slate-900">{bracket.range}</p>
-                        <p className="text-xs text-slate-500">Rate: {bracket.label}</p>
+                        <p className="text-xs text-slate-500">
+                          Rate: {bracket.label} • Taxable: {formatCurrency(bracket.applicableAmount)}
+                        </p>
                       </div>
                       <Badge className="bg-slate-200 text-slate-900">
                         {formatCurrency(bracket.tax)}
                       </Badge>
-                    </div>
-                    <div className="text-xs text-slate-600">
-                      Taxable amount: {formatCurrency(bracket.applicableAmount)}
                     </div>
                   </div>
                 ))}
@@ -235,14 +234,13 @@ export default function LandTransferTax() {
                       <div className="flex justify-between items-start mb-2">
                         <div>
                           <p className="text-sm font-semibold text-slate-900">{bracket.range}</p>
-                          <p className="text-xs text-slate-500">Rate: {bracket.label}</p>
+                          <p className="text-xs text-slate-500">
+                            Rate: {bracket.label} • Taxable: {formatCurrency(bracket.applicableAmount)}
+                          </p>
                         </div>
                         <Badge className="bg-blue-200 text-blue-900">
                           {formatCurrency(bracket.tax)}
                         </Badge>
-                      </div>
-                      <div className="text-xs text-slate-600">
-                        Taxable amount: {formatCurrency(bracket.applicableAmount)}
                       </div>
                     </div>
                   ))}
