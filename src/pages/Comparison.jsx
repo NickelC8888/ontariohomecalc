@@ -245,13 +245,31 @@ export default function Comparison() {
     });
   };
 
+  const calculateTotalInterest = (monthlyPayment, amortization, mortgageAmount) => {
+    const totalPaid = monthlyPayment * amortization * 12;
+    return totalPaid - mortgageAmount;
+  };
+
+  const getScenarioMetrics = (scenario) => {
+    const downPaymentAmount = scenario.price * (scenario.downPaymentPercent / 100);
+    const mortgageInsurance = calculateCMHC(scenario.price, scenario.downPaymentPercent);
+    const totalMortgageAmount = (scenario.price - downPaymentAmount) + mortgageInsurance;
+    const monthlyPayment = calculatePayment(totalMortgageAmount, scenario.interestRate, scenario.amortization);
+    const totalInterest = calculateTotalInterest(monthlyPayment, scenario.amortization, totalMortgageAmount);
+    const totalLTT = calculateTotalLTT(scenario.price, scenario.isToronto, scenario.isFirstTimeBuyer);
+    const totalUpfront = downPaymentAmount + totalLTT + 2300;
+    
+    return { monthlyPayment, downPaymentAmount, totalInterest, totalUpfront, interestRate: scenario.interestRate, amortization: scenario.amortization };
+  };
+
   const renderScenario = (scenario, index) => {
     const downPaymentAmount = scenario.price * (scenario.downPaymentPercent / 100);
     const mortgageInsurance = calculateCMHC(scenario.price, scenario.downPaymentPercent);
     const totalMortgageAmount = (scenario.price - downPaymentAmount) + mortgageInsurance;
     const monthlyPayment = calculatePayment(totalMortgageAmount, scenario.interestRate, scenario.amortization);
+    const totalInterest = calculateTotalInterest(monthlyPayment, scenario.amortization, totalMortgageAmount);
     const totalLTT = calculateTotalLTT(scenario.price, scenario.isToronto, scenario.isFirstTimeBuyer);
-    const closingCosts = 2300; // Default estimate (legal + appraisal + inspection)
+    const closingCosts = 2300;
     const totalAmountDueOnClosing = downPaymentAmount + totalLTT + closingCosts;
 
     return (
@@ -446,6 +464,10 @@ export default function Comparison() {
               <span className="text-slate-900">Total Mortgage</span>
               <span className="text-slate-900">{formatCurrency(totalMortgageAmount)}</span>
             </div>
+            <div className="flex justify-between pt-2 border-t border-slate-100">
+              <span className="text-slate-600">Total Interest Over {scenario.amortization} Years</span>
+              <span className="font-medium text-red-600">{formatCurrency(totalInterest)}</span>
+            </div>
           </div>
 
           {/* Amount Due on Closing */}
@@ -506,6 +528,102 @@ export default function Comparison() {
           </Button>
         </Link>
       </div>
+
+      {/* Comparison Summary Table */}
+      <Card className="border-2 border-emerald-200 bg-emerald-50">
+        <CardHeader>
+          <CardTitle className="text-2xl text-slate-900">Quick Comparison</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b-2 border-emerald-200">
+                  <th className="text-left py-3 px-2 font-semibold text-slate-700">Metric</th>
+                  {scenarios.map((scenario, idx) => (
+                    <th key={idx} className="text-right py-3 px-2 font-semibold text-slate-700">
+                      {scenario.name}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { 
+                    label: 'Monthly Payment',
+                    getValue: (s) => getScenarioMetrics(s).monthlyPayment,
+                    highlight: true
+                  },
+                  { 
+                    label: 'Down Payment',
+                    getValue: (s) => getScenarioMetrics(s).downPaymentAmount
+                  },
+                  { 
+                    label: 'Total Interest Paid',
+                    getValue: (s) => getScenarioMetrics(s).totalInterest,
+                    isNegative: true
+                  },
+                  { 
+                    label: 'Upfront Costs',
+                    getValue: (s) => getScenarioMetrics(s).totalUpfront
+                  },
+                  { 
+                    label: 'Interest Rate',
+                    getValue: (s) => s.interestRate,
+                    isPercent: true
+                  },
+                  { 
+                    label: 'Amortization',
+                    getValue: (s) => s.amortization,
+                    isYears: true
+                  }
+                ].map((row, idx) => {
+                  const values = scenarios.map(s => row.getValue(s));
+                  const minValue = Math.min(...values);
+                  const maxValue = Math.max(...values);
+                  
+                  return (
+                    <tr key={idx} className="border-b border-emerald-100">
+                      <td className="py-3 px-2 font-medium text-slate-700">{row.label}</td>
+                      {scenarios.map((scenario, sIdx) => {
+                        const value = values[sIdx];
+                        const isBest = row.isNegative ? value === minValue : value === minValue;
+                        const isWorst = row.isNegative ? value === maxValue : value === maxValue;
+                        
+                        return (
+                          <td 
+                            key={sIdx} 
+                            className={`text-right py-3 px-2 font-semibold ${
+                              row.highlight ? 'text-emerald-700 text-base' :
+                              isBest && values.some((v, i) => v !== values[i]) ? 'text-green-600' :
+                              isWorst && values.some((v, i) => v !== values[i]) ? 'text-red-600' :
+                              'text-slate-900'
+                            }`}
+                          >
+                            {row.isPercent ? `${value.toFixed(2)}%` :
+                             row.isYears ? `${value} yrs` :
+                             formatCurrency(value)}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <div className="mt-4 text-xs text-slate-600 flex items-center gap-4">
+            <span className="flex items-center gap-1">
+              <span className="w-3 h-3 bg-green-100 border border-green-600 rounded"></span>
+              Best Value
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="w-3 h-3 bg-red-100 border border-red-600 rounded"></span>
+              Highest Cost
+            </span>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid md:grid-cols-3 gap-6">
         {scenarios.map((scenario, index) => renderScenario(scenario, index))}
