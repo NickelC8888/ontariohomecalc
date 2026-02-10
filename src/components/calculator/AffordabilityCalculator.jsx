@@ -707,7 +707,22 @@ export default function AffordabilityCalculator() {
 
                 {/* Mortgage Type */}
                 <div className="space-y-3">
-                    <Label className="text-slate-700 font-medium">Mortgage Type</Label>
+                    <div className="flex items-center gap-2">
+                        <Label className="text-slate-700 font-medium">Mortgage Type</Label>
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger>
+                                    <Info className="w-4 h-4 text-slate-400" />
+                                </TooltipTrigger>
+                                <TooltipContent className="max-w-xs">
+                                    <p className="font-semibold mb-2">Fixed Rate:</p>
+                                    <p className="text-xs mb-3">Your interest rate stays the same for the entire term. Monthly payments remain consistent and predictable.</p>
+                                    <p className="font-semibold mb-2">Variable Rate:</p>
+                                    <p className="text-xs">Your interest rate fluctuates with market conditions. Monthly payments can go up or down, potentially saving money when rates drop.</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                    </div>
                     <div className="flex p-1 bg-slate-100 rounded-lg">
                         {['fixed', 'variable'].map((type) => (
                             <button
