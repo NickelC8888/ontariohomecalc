@@ -55,6 +55,7 @@ export default function AffordabilityCalculator() {
   const [scenarioName, setScenarioName] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+  const [showPropertyLookup, setShowPropertyLookup] = useState(false);
 
   // Email State
   const [isEmailDialogOpen, setIsEmailDialogOpen] = useState(false);
@@ -205,9 +206,11 @@ export default function AffordabilityCalculator() {
       try {
         const user = await base44.auth.me();
         setCurrentUser(user);
+        setShowPropertyLookup(user?.enable_property_lookup || false);
       } catch (error) {
         // User not logged in
         setCurrentUser(null);
+        setShowPropertyLookup(false);
       }
     };
     loadUser();
@@ -444,7 +447,7 @@ export default function AffordabilityCalculator() {
     <div className="grid lg:grid-cols-12 gap-8">
       {/* Input Section */}
       <div className="lg:col-span-7 space-y-6">
-        <PropertySearch onPropertyFound={handlePropertyFound} />
+        {showPropertyLookup && <PropertySearch onPropertyFound={handlePropertyFound} />}
         <Card className="border-none shadow-lg bg-white">
           <CardHeader>
             <CardTitle className="text-2xl text-slate-800">Property Details</CardTitle>
