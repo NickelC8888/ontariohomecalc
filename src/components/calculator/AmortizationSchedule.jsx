@@ -10,7 +10,8 @@ export default function AmortizationSchedule({
   mortgageAmount,
   interestRate,
   amortization,
-  monthlyPayment
+  monthlyPayment,
+  paymentFrequency = 'monthly'
 }) {
   const [viewMode, setViewMode] = useState('yearly'); // 'monthly' or 'yearly'
   
@@ -20,30 +21,59 @@ export default function AmortizationSchedule({
   const generateSchedule = () => {
     const schedule = [];
     let balance = mortgageAmount;
-    const monthlyRate = interestRate / 100 / 12;
-    const totalPayments = amortization * 12;
+    
+    if (paymentFrequency === 'monthly') {
+      const monthlyRate = interestRate / 100 / 12;
+      const totalPayments = amortization * 12;
 
-    for (let month = 1; month <= totalPayments; month++) {
-      const interestPayment = balance * monthlyRate;
-      const principalPayment = monthlyPayment - interestPayment;
-      balance = Math.max(0, balance - principalPayment);
+      for (let month = 1; month <= totalPayments; month++) {
+        const interestPayment = balance * monthlyRate;
+        const principalPayment = monthlyPayment - interestPayment;
+        balance = Math.max(0, balance - principalPayment);
 
-      schedule.push({
-        month,
-        payment: monthlyPayment,
-        principal: principalPayment,
-        interest: interestPayment,
-        balance
-      });
+        schedule.push({
+          period: month,
+          payment: monthlyPayment,
+          principal: principalPayment,
+          interest: interestPayment,
+          balance
+        });
+      }
+    } else {
+      // Biweekly
+      const monthlyRate = interestRate / 100 / 12;
+      const biweeklyRate = monthlyRate / 2;
+      const totalPayments = amortization * 26; // 26 biweekly payments per year
+
+      for (let period = 1; period <= totalPayments; period++) {
+        const interestPayment = balance * biweeklyRate;
+        const principalPayment = monthlyPayment - interestPayment;
+        balance = Math.max(0, balance - principalPayment);
+
+        schedule.push({
+          period,
+          payment: monthlyPayment,
+          principal: principalPayment,
+          interest: interestPayment,
+          balance
+        });
+        
+        if (balance === 0) break;
+      }
     }
 
     return schedule;
   };
 
-  const getYearlySchedule = (monthlySchedule) => {
+  const getYearlySchedule = (periodSchedule) => {
     const yearly = [];
-    for (let year = 1; year <= amortization; year++) {
-      const yearData = monthlySchedule.slice((year - 1) * 12, year * 12);
+    const periodsPerYear = paymentFrequency === 'monthly' ? 12 : 26;
+    const numYears = Math.ceil(periodSchedule.length / periodsPerYear);
+    
+    for (let year = 1; year <= numYears; year++) {
+      const yearData = periodSchedule.slice((year - 1) * periodsPerYear, year * periodsPerYear);
+      if (yearData.length === 0) break;
+      
       const totalPayment = yearData.reduce((sum, m) => sum + m.payment, 0);
       const totalPrincipal = yearData.reduce((sum, m) => sum + m.principal, 0);
       const totalInterest = yearData.reduce((sum, m) => sum + m.interest, 0);
@@ -60,11 +90,12 @@ export default function AmortizationSchedule({
     return yearly;
   };
 
-  const monthlySchedule = generateSchedule();
-  const yearlySchedule = getYearlySchedule(monthlySchedule);
+  const periodSchedule = generateSchedule();
+  const yearlySchedule = getYearlySchedule(periodSchedule);
 
-  const totalPaid = monthlyPayment * amortization * 12;
+  const totalPaid = periodSchedule.reduce((sum, p) => sum + p.payment, 0);
   const totalInterest = totalPaid - mortgageAmount;
+  const actualYears = periodSchedule.length / (paymentFrequency === 'monthly' ? 12 : 26);
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -77,20 +108,30 @@ export default function AmortizationSchedule({
         </DialogHeader>
 
         {/* Summary */}
-        <div className="grid grid-cols-3 gap-4 p-4 bg-slate-50 rounded-lg">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-slate-50 rounded-lg">
           <div>
-            <p className="text-sm text-slate-600">Total Paid</p>
-            <p className="text-lg font-bold text-slate-900">{formatCurrency(totalPaid)}</p>
+            <p className="text-sm text-slate-600">Payment Frequency</p>
+            <p className="text-lg font-bold text-slate-900 capitalize">{paymentFrequency}</p>
+          </div>
+          <div>
+            <p className="text-sm text-slate-600">Actual Payoff Time</p>
+            <p className="text-lg font-bold text-emerald-600">{actualYears.toFixed(1)} years</p>
           </div>
           <div>
             <p className="text-sm text-slate-600">Total Interest</p>
             <p className="text-lg font-bold text-red-600">{formatCurrency(totalInterest)}</p>
           </div>
           <div>
-            <p className="text-sm text-slate-600">Mortgage Amount</p>
-            <p className="text-lg font-bold text-emerald-600">{formatCurrency(mortgageAmount)}</p>
+            <p className="text-sm text-slate-600">Total Paid</p>
+            <p className="text-lg font-bold text-slate-900">{formatCurrency(totalPaid)}</p>
           </div>
         </div>
+        
+        {paymentFrequency === 'biweekly' && actualYears < amortization && (
+          <div className="px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-lg text-sm text-emerald-800">
+            <strong>Savings with Biweekly Payments:</strong> Pay off your mortgage {(amortization - actualYears).toFixed(1)} years earlier!
+          </div>
+        )}
 
         {/* View Toggle */}
         <div className="flex justify-center gap-2 py-2">
@@ -108,7 +149,7 @@ export default function AmortizationSchedule({
             size="sm"
             className={viewMode === 'monthly' ? 'bg-emerald-600 hover:bg-emerald-700' : ''}
           >
-            Monthly View
+            {paymentFrequency === 'monthly' ? 'Monthly' : 'Biweekly'} View
           </Button>
         </div>
 
@@ -117,7 +158,7 @@ export default function AmortizationSchedule({
           <Table>
             <TableHeader className="sticky top-0 bg-white z-10">
               <TableRow>
-                <TableHead className="font-semibold">{viewMode === 'yearly' ? 'Year' : 'Month'}</TableHead>
+                <TableHead className="font-semibold">{viewMode === 'yearly' ? 'Year' : 'Period'}</TableHead>
                 <TableHead className="text-right font-semibold">Payment</TableHead>
                 <TableHead className="text-right font-semibold">Principal</TableHead>
                 <TableHead className="text-right font-semibold">Interest</TableHead>
@@ -136,10 +177,12 @@ export default function AmortizationSchedule({
                   </TableRow>
                 ))
               ) : (
-                monthlySchedule.map((row) => (
-                  <TableRow key={row.month} className="hover:bg-slate-50">
+                periodSchedule.map((row) => (
+                  <TableRow key={row.period} className="hover:bg-slate-50">
                     <TableCell className="font-medium">
-                      {Math.floor((row.month - 1) / 12) + 1}-{((row.month - 1) % 12) + 1}
+                      {paymentFrequency === 'monthly' 
+                        ? `${Math.floor((row.period - 1) / 12) + 1}-${((row.period - 1) % 12) + 1}`
+                        : `${Math.floor((row.period - 1) / 26) + 1}-${((row.period - 1) % 26) + 1}`}
                     </TableCell>
                     <TableCell className="text-right">{formatCurrency(row.payment)}</TableCell>
                     <TableCell className="text-right text-emerald-600">{formatCurrency(row.principal)}</TableCell>

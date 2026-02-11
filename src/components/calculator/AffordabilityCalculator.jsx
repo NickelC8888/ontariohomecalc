@@ -32,6 +32,7 @@ export default function AffordabilityCalculator() {
   const [lenderName, setLenderName] = useState("BMO");
   const [isToronto, setIsToronto] = useState(true);
   const [isFirstTimeBuyer, setIsFirstTimeBuyer] = useState(true);
+  const [paymentFrequency, setPaymentFrequency] = useState("monthly"); // 'monthly' or 'biweekly'
   
   // Live Rates State
   const [bankRates, setBankRates] = useState([]);
@@ -93,17 +94,28 @@ export default function AffordabilityCalculator() {
   const totalMortgageAmount = (price - downPaymentAmount) + mortgageInsurance;
 
   // Calculation Functions
-  const calculatePayment = (principal, rate, years) => {
-    const monthlyRate = rate / 100 / 12;
-    const numberOfPayments = years * 12;
-    if (rate === 0) return principal / numberOfPayments;
-    
-    return (principal * monthlyRate * Math.pow(1 + monthlyRate, numberOfPayments)) / 
-           (Math.pow(1 + monthlyRate, numberOfPayments) - 1);
+  const calculatePayment = (principal, rate, years, frequency = 'monthly') => {
+    if (frequency === 'monthly') {
+      const monthlyRate = rate / 100 / 12;
+      const numberOfPayments = years * 12;
+      if (rate === 0) return principal / numberOfPayments;
+      
+      return (principal * monthlyRate * Math.pow(1 + monthlyRate, numberOfPayments)) / 
+             (Math.pow(1 + monthlyRate, numberOfPayments) - 1);
+    } else {
+      // Biweekly (accelerated)
+      const monthlyRate = rate / 100 / 12;
+      const biweeklyRate = monthlyRate / 2;
+      const numberOfPayments = years * 26; // 26 biweekly payments per year
+      if (rate === 0) return principal / numberOfPayments;
+      
+      return (principal * biweeklyRate * Math.pow(1 + biweeklyRate, numberOfPayments)) / 
+             (Math.pow(1 + biweeklyRate, numberOfPayments) - 1);
+    }
   };
 
   const calculateMortgagePayment = () => {
-    return calculatePayment(totalMortgageAmount, interestRate, amortization);
+    return calculatePayment(totalMortgageAmount, interestRate, amortization, paymentFrequency);
   };
 
   // Stress Test Calculation
@@ -902,6 +914,44 @@ export default function AffordabilityCalculator() {
                       </div>
                   </div>
 
+                  {/* Payment Frequency */}
+                  <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                          <Label className="text-slate-700 font-medium">Payment Frequency</Label>
+                          <TooltipProvider>
+                              <Tooltip>
+                                  <TooltipTrigger>
+                                      <Info className="w-4 h-4 text-slate-400" />
+                                  </TooltipTrigger>
+                                  <TooltipContent className="max-w-xs">
+                                      <p className="font-semibold mb-2">Monthly:</p>
+                                      <p className="text-xs mb-3">12 payments per year. Standard payment schedule.</p>
+                                      <p className="font-semibold mb-2">Biweekly (Accelerated):</p>
+                                      <p className="text-xs">26 payments per year (every 2 weeks). Pay off your mortgage faster and save on interest!</p>
+                                  </TooltipContent>
+                              </Tooltip>
+                          </TooltipProvider>
+                      </div>
+                      <div className="flex p-1 bg-slate-100 rounded-lg">
+                          {[
+                              { value: 'monthly', label: 'Monthly' },
+                              { value: 'biweekly', label: 'Biweekly' }
+                          ].map((freq) => (
+                              <button
+                                  key={freq.value}
+                                  onClick={() => setPaymentFrequency(freq.value)}
+                                  className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-all ${
+                                      paymentFrequency === freq.value 
+                                      ? 'bg-white text-slate-900 shadow-sm' 
+                                      : 'text-slate-500 hover:text-slate-700'
+                                  }`}
+                              >
+                                  {freq.label}
+                              </button>
+                          ))}
+                      </div>
+                  </div>
+
                   <Button 
                     onClick={() => setIsAmortizationOpen(true)}
                     variant="outline"
@@ -1126,6 +1176,7 @@ export default function AffordabilityCalculator() {
           interestRate={interestRate}
           amortization={amortization}
           monthlyPayment={monthlyPayment}
+          paymentFrequency={paymentFrequency}
         />
 
       {/* Results Section */}
