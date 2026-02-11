@@ -16,7 +16,6 @@ import { base44 } from "@/api/base44Client";
 import ResultsDisplay from './ResultsDisplay';
 import AmortizationSchedule from './AmortizationSchedule';
 import PropertySearch from './PropertySearch';
-import AffordabilityGuidance from './AffordabilityGuidance';
 
 export default function AffordabilityCalculator() {
   const navigate = useNavigate();
@@ -1132,16 +1131,6 @@ export default function AffordabilityCalculator() {
       {/* Results Section */}
       <div className="lg:col-span-5">
         <div className="sticky top-24 space-y-6">
-          {/* AI Affordability Guidance */}
-          <AffordabilityGuidance
-            propertyPrice={price}
-            monthlyPayment={monthlyPayment}
-            downPaymentPercent={downPaymentPercent}
-            totalMortgageAmount={totalMortgageAmount}
-            stressTestPayment={stressTestPayment}
-            mortgageInsurance={mortgageInsurance}
-          />
-
           {/* Sidebar Ad */}
           <div className="bg-slate-100 border border-slate-200 rounded-lg p-3 text-center">
             <p className="text-xs text-slate-400 mb-2">Advertisement</p>
