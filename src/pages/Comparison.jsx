@@ -6,10 +6,12 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { ArrowLeft, Save } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ArrowLeft, Save, Edit2, Check, BarChart3 } from 'lucide-react';
 import { createPageUrl } from '../utils';
 import { base44 } from "@/api/base44Client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 export default function Comparison() {
   const location = useLocation();
@@ -21,6 +23,8 @@ export default function Comparison() {
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [savingScenarioIndex, setSavingScenarioIndex] = useState(null);
   const [scenarioName, setScenarioName] = useState("");
+  const [editingScenarioName, setEditingScenarioName] = useState(null);
+  const [tempName, setTempName] = useState("");
 
   const [scenarios, setScenarios] = useState([
     {
@@ -183,6 +187,50 @@ export default function Comparison() {
     });
   };
 
+  const handleEditScenarioName = (index) => {
+    setEditingScenarioName(index);
+    setTempName(scenarios[index].name);
+  };
+
+  const handleSaveScenarioName = (index) => {
+    if (tempName.trim()) {
+      updateScenario(index, 'name', tempName.trim());
+    }
+    setEditingScenarioName(null);
+  };
+
+  const COLORS = ['#10b981', '#3b82f6', '#f59e0b'];
+
+  const getChartData = () => {
+    return scenarios.map((scenario, index) => {
+      const metrics = getScenarioMetrics(scenario);
+      return {
+        name: scenario.name,
+        'Monthly Payment': Math.round(metrics.monthlyPayment),
+        'Total Interest': Math.round(metrics.totalInterest),
+        'Upfront Costs': Math.round(metrics.totalUpfront),
+        'Down Payment': Math.round(metrics.downPaymentAmount),
+        color: COLORS[index]
+      };
+    });
+  };
+
+  const getInterestPieData = () => {
+    return scenarios.map((scenario, index) => ({
+      name: scenario.name,
+      value: Math.round(getScenarioMetrics(scenario).totalInterest),
+      color: COLORS[index]
+    }));
+  };
+
+  const getPayoffData = () => {
+    return scenarios.map((scenario, index) => ({
+      name: scenario.name,
+      years: scenario.amortization,
+      color: COLORS[index]
+    }));
+  };
+
   const handleSaveScenario = (index) => {
     if (!currentUser) {
       base44.auth.redirectToLogin(createPageUrl('Profile'));
@@ -275,7 +323,37 @@ export default function Comparison() {
     return (
       <Card key={index} className="border-2 border-slate-200">
         <CardHeader className="bg-slate-50">
-          <CardTitle className="text-xl text-slate-900">{scenario.name}</CardTitle>
+          <div className="flex items-center justify-between">
+            {editingScenarioName === index ? (
+              <div className="flex items-center gap-2 flex-1">
+                <Input
+                  value={tempName}
+                  onChange={(e) => setTempName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleSaveScenarioName(index);
+                    if (e.key === 'Escape') setEditingScenarioName(null);
+                  }}
+                  className="text-lg font-semibold"
+                  autoFocus
+                />
+                <Button size="sm" onClick={() => handleSaveScenarioName(index)} className="bg-emerald-600 hover:bg-emerald-700">
+                  <Check className="w-4 h-4" />
+                </Button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 flex-1">
+                <CardTitle className="text-xl text-slate-900">{scenario.name}</CardTitle>
+                <Button 
+                  size="sm" 
+                  variant="ghost" 
+                  onClick={() => handleEditScenarioName(index)}
+                  className="h-8 w-8 p-0"
+                >
+                  <Edit2 className="w-4 h-4" />
+                </Button>
+              </div>
+            )}
+          </div>
         </CardHeader>
         <CardContent className="space-y-6 pt-6">
           
@@ -529,14 +607,99 @@ export default function Comparison() {
         </Link>
       </div>
 
-      {/* Comparison Summary Table */}
-      <Card className="border-2 border-emerald-200 bg-emerald-50">
-        <CardHeader>
-          <CardTitle className="text-2xl text-slate-900">Quick Comparison</CardTitle>
+      {/* Visual Comparison with Tabs */}
+      <Card className="border-2 border-emerald-200">
+        <CardHeader className="bg-emerald-50">
+          <div className="flex items-center gap-2">
+            <BarChart3 className="w-6 h-6 text-emerald-600" />
+            <CardTitle className="text-2xl text-slate-900">Scenario Comparison</CardTitle>
+          </div>
         </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+        <CardContent className="pt-6">
+          <Tabs defaultValue="charts" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-6">
+              <TabsTrigger value="charts">Visual Charts</TabsTrigger>
+              <TabsTrigger value="table">Data Table</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="charts" className="space-y-6">
+              {/* Monthly Payment Comparison */}
+              <div>
+                <h3 className="text-lg font-semibold text-slate-900 mb-4">Monthly Payment Comparison</h3>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={getChartData()}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip formatter={(value) => formatCurrency(value)} />
+                    <Bar dataKey="Monthly Payment" fill="#10b981" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Total Interest Comparison */}
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-900 mb-4">Total Interest Paid</h3>
+                  <ResponsiveContainer width="100%" height={280}>
+                    <PieChart>
+                      <Pie
+                        data={getInterestPieData()}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={(entry) => `${entry.name}: ${formatCurrency(entry.value)}`}
+                        outerRadius={80}
+                        fill="#8884d8"
+                        dataKey="value"
+                      >
+                        {getInterestPieData().map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip formatter={(value) => formatCurrency(value)} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-900 mb-4">Payoff Time (Years)</h3>
+                  <ResponsiveContainer width="100%" height={280}>
+                    <BarChart data={getPayoffData()}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" />
+                      <YAxis />
+                      <Tooltip />
+                      <Bar dataKey="years" fill="#3b82f6">
+                        {getPayoffData().map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              {/* Upfront Costs Comparison */}
+              <div>
+                <h3 className="text-lg font-semibold text-slate-900 mb-4">Upfront Costs Breakdown</h3>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={getChartData()}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip formatter={(value) => formatCurrency(value)} />
+                    <Legend />
+                    <Bar dataKey="Down Payment" fill="#10b981" />
+                    <Bar dataKey="Upfront Costs" fill="#f59e0b" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="table">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
               <thead>
                 <tr className="border-b-2 border-emerald-200">
                   <th className="text-left py-3 px-2 font-semibold text-slate-700">Metric</th>
@@ -610,18 +773,20 @@ export default function Comparison() {
                   );
                 })}
               </tbody>
-            </table>
-          </div>
-          <div className="mt-4 text-xs text-slate-600 flex items-center gap-4">
-            <span className="flex items-center gap-1">
-              <span className="w-3 h-3 bg-green-100 border border-green-600 rounded"></span>
-              Best Value
-            </span>
-            <span className="flex items-center gap-1">
-              <span className="w-3 h-3 bg-red-100 border border-red-600 rounded"></span>
-              Highest Cost
-            </span>
-          </div>
+                </table>
+              </div>
+              <div className="mt-4 text-xs text-slate-600 flex items-center gap-4">
+                <span className="flex items-center gap-1">
+                  <span className="w-3 h-3 bg-green-100 border border-green-600 rounded"></span>
+                  Best Value
+                </span>
+                <span className="flex items-center gap-1">
+                  <span className="w-3 h-3 bg-red-100 border border-red-600 rounded"></span>
+                  Highest Cost
+                </span>
+              </div>
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
 
