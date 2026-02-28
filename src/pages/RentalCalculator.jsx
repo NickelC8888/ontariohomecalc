@@ -7,7 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Info, TrendingUp, TrendingDown, Home, DollarSign, Building } from 'lucide-react';
+import { Info, TrendingUp, TrendingDown, Home, DollarSign, Building, Plus, Trash2 } from 'lucide-react';
+import { Button } from "@/components/ui/button";
 import { RadialBarChart, RadialBar, ResponsiveContainer, PieChart, Pie, Cell, Tooltip as RechartsTooltip, Legend } from 'recharts';
 
 const fmt = (val) =>
@@ -52,10 +53,39 @@ export default function RentalCalculator() {
   const [propertyTax, setPropertyTax] = useState(5000);
   const [insurance, setInsurance] = useState(1500);
   const [maintenance, setMaintenance] = useState(3000);
-  const [propertyManagement, setPropertyManagement] = useState(0);
-  const [includeManagement, setIncludeManagement] = useState(false);
-  const [utilities, setUtilities] = useState(0);
-  const [includeUtilities, setIncludeUtilities] = useState(false);
+  const [additionalExpenses, setAdditionalExpenses] = useState([]);
+
+  const EXPENSE_OPTIONS = [
+    'Utilities',
+    'Landscaping',
+    'Snow Removal',
+    'Property Management Fees',
+    'Advertising',
+    'Legal Fees',
+    'Accounting Fees',
+    'Office Expenses',
+    'Travel',
+    'Salaries & Wages',
+  ];
+
+  const addExpense = (category) => {
+    if (!category) return;
+    setAdditionalExpenses(prev => [...prev, { category, amount: 0 }]);
+  };
+
+  const updateExpenseAmount = (index, amount) => {
+    setAdditionalExpenses(prev => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], amount: Number(amount) };
+      return updated;
+    });
+  };
+
+  const removeExpense = (index) => {
+    setAdditionalExpenses(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const additionalExpensesTotal = additionalExpenses.reduce((sum, e) => sum + e.amount, 0);
 
   // --- Calculations ---
   const downPaymentAmount = price * (downPaymentPercent / 100);
@@ -108,9 +138,7 @@ export default function RentalCalculator() {
   const grossAnnualRent = effectiveMonthlyRent * 12;
 
   // Expenses
-  const mgmtCost = includeManagement ? propertyManagement : 0;
-  const utilitiesCost = includeUtilities ? utilities : 0;
-  const totalAnnualExpenses = propertyTax + insurance + maintenance + mgmtCost + utilitiesCost;
+  const totalAnnualExpenses = propertyTax + insurance + maintenance + additionalExpensesTotal;
 
   // NOI & Cap Rate
   const noi = grossAnnualRent - totalAnnualExpenses;
@@ -296,30 +324,45 @@ export default function RentalCalculator() {
                 </div>
               ))}
 
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-2">
-                  <Switch checked={includeManagement} onCheckedChange={setIncludeManagement} id="mgmt" />
-                  <Label htmlFor="mgmt" className="text-slate-700 cursor-pointer">Property Management</Label>
-                </div>
-                {includeManagement && (
-                  <div className="relative w-40">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span>
-                    <Input type="number" value={propertyManagement} onChange={(e) => setPropertyManagement(Number(e.target.value))} className="pl-7 text-right" />
+              {/* Dynamic Additional Expenses */}
+              {additionalExpenses.map((expense, index) => (
+                <div key={index} className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <button
+                      onClick={() => removeExpense(index)}
+                      className="text-red-400 hover:text-red-600 transition-colors flex-shrink-0"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                    <Label className="text-slate-700 truncate">{expense.category}</Label>
                   </div>
-                )}
-              </div>
+                  <div className="relative w-40 flex-shrink-0">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span>
+                    <Input
+                      type="number"
+                      value={expense.amount}
+                      onChange={(e) => updateExpenseAmount(index, e.target.value)}
+                      className="pl-7 text-right"
+                    />
+                  </div>
+                </div>
+              ))}
 
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-2">
-                  <Switch checked={includeUtilities} onCheckedChange={setIncludeUtilities} id="util" />
-                  <Label htmlFor="util" className="text-slate-700 cursor-pointer">Utilities (landlord-paid)</Label>
-                </div>
-                {includeUtilities && (
-                  <div className="relative w-40">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span>
-                    <Input type="number" value={utilities} onChange={(e) => setUtilities(Number(e.target.value))} className="pl-7 text-right" />
-                  </div>
-                )}
+              {/* Add Expense Button */}
+              <div className="flex items-center gap-2">
+                <Select onValueChange={(val) => addExpense(val)} value="">
+                  <SelectTrigger className="flex-1 border-dashed border-slate-300 text-slate-500">
+                    <div className="flex items-center gap-2">
+                      <Plus className="w-4 h-4" />
+                      <span>Add Expense Category</span>
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {EXPENSE_OPTIONS.map(opt => (
+                      <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="pt-3 border-t border-slate-200 flex justify-between font-semibold text-slate-900">
