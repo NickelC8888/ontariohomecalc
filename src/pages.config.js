@@ -54,6 +54,7 @@ import MonthlyBudget from './pages/MonthlyBudget';
 import Profile from './pages/Profile';
 import Registration from './pages/Registration';
 import SavedScenarios from './pages/SavedScenarios';
+import RentalCalculator from './pages/RentalCalculator';
 import __Layout from './Layout.jsx';
 
 
@@ -65,6 +66,7 @@ export const PAGES = {
     "Profile": Profile,
     "Registration": Registration,
     "SavedScenarios": SavedScenarios,
+    "RentalCalculator": RentalCalculator,
 }
 
 export const pagesConfig = {
