@@ -89,6 +89,12 @@ export default function Layout({ children }) {
                     Monthly Budget Calculator
                 </Link>
                 <Link 
+                    to={createPageUrl('RentalCalculator')}
+                    className="hidden md:block text-sm font-medium text-slate-600 hover:text-emerald-600 transition-colors"
+                >
+                    Rental Calculator
+                </Link>
+                <Link 
                     to={createPageUrl('Profile')}
                     className="hidden md:block text-sm font-medium text-slate-600 hover:text-emerald-600 transition-colors"
                 >
