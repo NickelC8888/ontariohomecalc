@@ -144,6 +144,12 @@ export default function Layout({ children }) {
                           Monthly Budget Calculator
                         </Link>
                       </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to={createPageUrl('RentalCalculator')} className="cursor-pointer">
+                          <DollarSign className="w-4 h-4 mr-2" />
+                          Rental Calculator
+                        </Link>
+                      </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-red-600">
                         <LogOut className="w-4 h-4 mr-2" />
