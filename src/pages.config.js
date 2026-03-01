@@ -55,6 +55,7 @@ import Profile from './pages/Profile';
 import Registration from './pages/Registration';
 import SavedScenarios from './pages/SavedScenarios';
 import RentalCalculator from './pages/RentalCalculator';
+import Admin from './pages/Admin';
 import __Layout from './Layout.jsx';
 
 
@@ -67,6 +68,7 @@ export const PAGES = {
     "Registration": Registration,
     "SavedScenarios": SavedScenarios,
     "RentalCalculator": RentalCalculator,
+    "Admin": Admin,
 }
 
 export const pagesConfig = {
