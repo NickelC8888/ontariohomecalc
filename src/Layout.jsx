@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Calculator, Home as HomeIcon, MapPin, User, LogOut, LogIn, DollarSign, Shield } from 'lucide-react';
+import { Calculator, Home as HomeIcon, MapPin, User, LogOut, LogIn, DollarSign, Shield, BarChart2 } from 'lucide-react';
 import { createPageUrl } from './utils';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
@@ -20,6 +20,7 @@ const NAV_PAGES = [
   { key: 'SavedScenarios', label: 'My Scenarios', icon: null },
   { key: 'MonthlyBudget', label: 'Monthly Budget Calculator', icon: null },
   { key: 'RentalCalculator', label: 'Rental Calculator', icon: null },
+  { key: 'TvHealthCheck', label: 'NQ Health Check', icon: null },
 ];
 
 const DROPDOWN_PAGES = [
@@ -28,6 +29,7 @@ const DROPDOWN_PAGES = [
   { key: 'SavedScenarios', label: 'My Scenarios', icon: Calculator },
   { key: 'MonthlyBudget', label: 'Monthly Budget Calculator', icon: DollarSign },
   { key: 'RentalCalculator', label: 'Rental Calculator', icon: DollarSign },
+  { key: 'TvHealthCheck', label: 'NQ Health Check', icon: BarChart2 },
 ];
 
 export default function Layout({ children }) {
