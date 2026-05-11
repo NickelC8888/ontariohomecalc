@@ -20,6 +20,7 @@ const NAV_PAGES = [
   { key: 'SavedScenarios', label: 'My Scenarios', icon: null },
   { key: 'MonthlyBudget', label: 'Monthly Budget Calculator', icon: null },
   { key: 'RentalCalculator', label: 'Rental Calculator', icon: null },
+  { key: 'RoadTripPlanner', label: '🗺️ Road Trip Planner', icon: null },
 ];
 
 const DROPDOWN_PAGES = [
