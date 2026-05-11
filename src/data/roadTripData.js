@@ -892,4 +892,570 @@ export const TRIPS = [
         "Early fall colours begin in Gatineau Park — the maples turn gold and red starting in the hills. Crowds thin dramatically after Labour Day. Cooler temps make hiking far more comfortable for dogs and kids alike. Ottawa's best-kept seasonal secret.",
     },
   },
+
+  // ─────────────────────────────────────────────
+  // TRIP 5 — Eastern Canada Grand Circuit (7 days)
+  // Toronto → Kingston → Ottawa → Montréal → PEC → Toronto
+  // ─────────────────────────────────────────────
+  {
+    id: 'eastern-circuit',
+    name: 'Eastern Canada Grand Circuit',
+    tagline: 'Kingston · Ottawa · Montréal · Prince Edward County — the ultimate eastern loop',
+    duration: '7 days',
+    distanceKm: 1200,
+    driveHoursOneWay: 10.5, // total driving across full loop
+    seasons: ['june', 'late-august', 'early-september'],
+    colorFrom: '#7c3aed',
+    colorTo: '#4f46e5',
+    emoji: '🗺️',
+
+    tripProfile: {
+      passengers: '2 adults, 2 children',
+      pet: 'Samoyed, ~50 lbs',
+      vehicle: 'Van with roof rack',
+      dogBreedNote:
+        'Samoyeds have a thick double coat built for Arctic conditions — they overheat quickly in summer. Schedule all hikes for early morning (before 10 am) or evening. Bring a collapsible bowl and extra water at all times. Avoid hot pavement (burns paw pads — use the back of your hand to test). Never leave in a parked car. A cooling mat in the van is a great investment.',
+    },
+
+    route: {
+      waypoints: [
+        [43.6532, -79.3832],
+        [44.2312, -76.4860],
+        [45.4215, -75.6972],
+        [45.5017, -73.5673],
+        [44.0082, -77.1386],
+        [43.6532, -79.3832],
+      ],
+      googleMapsUrl:
+        'https://www.google.com/maps/dir/Toronto,+Ontario/Kingston,+Ontario/Ottawa,+Ontario/Montreal,+Quebec/Prince+Edward+County,+Ontario/Toronto,+Ontario',
+      stops: [
+        {
+          name: 'Toronto',
+          coords: [43.6532, -79.3832],
+          night: null,
+          description: 'Departure. Pack the van the evening before. Leave by 7:30 am to beat 401 traffic.',
+        },
+        {
+          name: 'Kingston',
+          coords: [44.2312, -76.4860],
+          night: 1,
+          description: "Canada's first capital. Historic limestone city on Lake Ontario. Fort Henry, waterfront, and great restaurants.",
+        },
+        {
+          name: 'Ottawa',
+          coords: [45.4215, -75.6972],
+          night: 2,
+          description: "Canada's capital for two nights. Parliament Hill, ByWard Market, Rideau Canal, and Gatineau Park.",
+        },
+        {
+          name: 'Ottawa (Night 2)',
+          coords: [45.4265, -75.6872],
+          night: 3,
+          description: 'Second Ottawa night — day trip to Gatineau Park, QC.',
+        },
+        {
+          name: 'Montréal',
+          coords: [45.5017, -73.5673],
+          night: 4,
+          description: "Canada's cultural capital for two nights. Old Montréal, Mount Royal, Lachine Canal, and legendary food.",
+        },
+        {
+          name: 'Montréal (Night 2)',
+          coords: [45.5067, -73.5623],
+          night: 5,
+          description: 'Second Montréal night — full city exploration day.',
+        },
+        {
+          name: 'Prince Edward County',
+          coords: [44.0082, -77.1386],
+          night: 6,
+          description: 'The County — wineries, Sandbanks, Picton village. Last overnight before heading home.',
+        },
+        {
+          name: 'Toronto',
+          coords: [43.6532, -79.3832],
+          night: null,
+          description: 'Home. 2.5 hr drive west via Hwy 401. Back by early afternoon.',
+        },
+      ],
+      itinerary: [
+        {
+          day: 1,
+          title: 'Toronto → Kingston  |  263 km · 2.5 hrs',
+          desc: "Easy first driving day. Arrive Kingston by late morning. Grab lunch at Pan Chancho Bakery. Afternoon at Fort Henry National Historic Site with the kids — outdoor ramparts and cannon firings. Evening waterfront walk with the dog along Lake Ontario. Early dinner at The Merchant Taphouse.",
+        },
+        {
+          day: 2,
+          title: 'Kingston → Ottawa  |  195 km · 2 hrs',
+          desc: "Morning drive along the 401/416. Check in and drop bags. Afternoon: Parliament Hill and the Changing of the Guard ceremony (dog welcome on the lawn). Walk the Rideau Canal Pathway. ByWard Market for a late lunch — BeaverTails are mandatory. Evening at Major's Hill Park with great views of the Château Laurier.",
+        },
+        {
+          day: 3,
+          title: 'Ottawa + Gatineau Park  |  No driving (day trips only)',
+          desc: "Full Ottawa day. Morning: Canadian Museum of Nature for kids — one adult takes the dog to nearby Dundonald Park (excellent off-leash area). Afternoon: drive 15 min to Gatineau Park, QC for the Pink Lake lookout trail (bring lots of water for the Samoyed). Evening: Ottawa River Pathway sunset walk.",
+        },
+        {
+          day: 4,
+          title: 'Ottawa → Montréal  |  200 km · 2 hrs',
+          desc: "Morning drive via Hwy 417 E. Arrive Montréal early afternoon. Check in near Old Montréal. Afternoon walk through Vieux-Montréal cobblestone streets and the Vieux-Port waterfront — both excellent with dogs. Kids love the old fortification walls. Dinner on a Old Montréal terrasse.",
+        },
+        {
+          day: 5,
+          title: 'Montréal — full day  |  No driving',
+          desc: "BIG day. Early morning (7 am): Mount Royal Park hike via Chemin Olmsted before the heat — essential for the Samoyed. Back down by 10 am. Late morning: Atwater Market for provisions. Afternoon: Lachine Canal linear path (flat, paved, shaded sections). Late afternoon: the famous Schwartz's smoked meat sandwiches on Saint-Laurent. Dog waits outside and gets all the attention from the queue.",
+        },
+        {
+          day: 6,
+          title: 'Montréal → Prince Edward County  |  280 km · 3 hrs',
+          desc: "Morning drive back through Kingston and across to The County. Arrive for lunch in Picton. Afternoon: Macaulay Mountain Conservation Area trail or a winery patio (Norman Hardie is very dog-friendly). Lake on the Mountain sunset lookout. Overnight in the County.",
+        },
+        {
+          day: 7,
+          title: 'Prince Edward County → Toronto  |  225 km · 2.5 hrs',
+          desc: "Relaxed final morning. Farm market run in Picton for local honey and preserves. Optional 30-min Lake on the Mountain walk with the dog. Easy drive home via Hwy 401 W. Back in Toronto by early afternoon — everyone, including the Samoyed, earns a long nap.",
+        },
+      ],
+    },
+
+    poi: [
+      // Kingston
+      {
+        name: 'Fort Henry National Historic Site',
+        location: 'Kingston',
+        description:
+          "A beautifully restored 1832 British fortification on a hill above Kingston Harbour. Guided tours, costumed soldiers, live cannon and musket firings, and stunning views across to the Thousand Islands. Kids are completely captivated.",
+        dogFriendly: true,
+        kidFriendly: true,
+        tags: ['history', 'fort', 'cannon', 'views', 'UNESCO'],
+        dogNote:
+          'Outdoor grounds, ramparts, and grassy areas are dog-friendly on leash. The elevated position catches a breeze — good for a Samoyed on a warm day. Confirm interior dog access on arrival.',
+      },
+      {
+        name: 'Kingston Waterfront & Confederation Park',
+        location: 'Kingston',
+        description:
+          'A beautiful flat waterfront promenade along Lake Ontario with splash pads for kids, a bandshell, picnic areas, and views across to Wolfe Island. The ferry to Wolfe Island is free.',
+        dogFriendly: true,
+        kidFriendly: true,
+        tags: ['waterfront', 'splash pad', 'flat', 'ferry', 'picnic'],
+        dogNote:
+          'Excellent for a Samoyed — flat grassy areas, shade trees, and cool lake breezes. The dog will get enormous attention from other visitors.',
+      },
+      // Ottawa
+      {
+        name: 'Parliament Hill & Changing of the Guard',
+        location: 'Ottawa',
+        description:
+          "Canada's iconic Gothic Revival Parliament Buildings. The free Changing of the Guard ceremony happens on the lawn every summer morning at 10 am — colourful, musical, and very photogenic.",
+        dogFriendly: true,
+        kidFriendly: true,
+        tags: ['landmark', 'ceremony', 'free', 'photography', 'history'],
+        dogNote:
+          'Outdoor grounds and viewing lawn are dog-friendly on leash. The wide open grass gives the Samoyed room to stretch. Arrive early for good viewing spots.',
+      },
+      {
+        name: 'ByWard Market',
+        location: 'Ottawa',
+        description:
+          "Ottawa's famous outdoor market neighbourhood. Fresh produce, artisan baked goods, BeaverTails pastry stands, dozens of restaurants, and a lively street atmosphere. Best visited for breakfast or lunch.",
+        dogFriendly: true,
+        kidFriendly: true,
+        tags: ['market', 'food', 'outdoor', 'BeaverTails', 'breakfast'],
+        dogNote:
+          "One of the most dog-welcoming places in Canada. Water bowls everywhere, outdoor terrasses that actively invite dogs, and the Samoyed's fluffy white coat will make you a local celebrity.",
+      },
+      {
+        name: 'Canadian Museum of Nature',
+        location: 'Ottawa',
+        description:
+          "World-class natural history museum with spectacular dinosaur fossil halls, a gem and mineral gallery, Arctic exhibit, and hands-on children's discovery zone. Easily a half-day.",
+        dogFriendly: false,
+        kidFriendly: true,
+        tags: ['museum', 'dinosaurs', 'science', 'gems', 'kids'],
+        dogNote:
+          'Dogs not permitted inside. Plan for one adult to visit Dundonald Park (3 min walk — has an excellent off-leash area) with the dog while others enjoy the museum. Switch halfway.',
+      },
+      {
+        name: 'Gatineau Park, Québec',
+        location: 'Gatineau, QC (15 min from Ottawa)',
+        description:
+          "A 361 km² national park just across the river in Québec. Pink Lake's extraordinary turquoise colour is unforgettable. Multiple trail options from easy to moderate. Early September brings the first stunning fall colours.",
+        dogFriendly: true,
+        kidFriendly: true,
+        tags: ['national park', 'lake', 'trails', 'fall colours', 'Québec'],
+        dogNote:
+          'Dogs on leash on all marked trails. DO THIS EARLY (before 9 am in summer) — the park heats up quickly and a Samoyed in full sun on a warm August afternoon is not a good situation. Bring 2 litres of water for the dog.',
+      },
+      // Montréal
+      {
+        name: 'Old Montréal (Vieux-Montréal)',
+        location: 'Montréal',
+        description:
+          "North America's largest intact historic district. Cobblestone streets, 17th-century stone buildings, the stunning Notre-Dame Basilica exterior, the Vieux-Port waterfront, and countless café terrasses. Magical at any time of day.",
+        dogFriendly: true,
+        kidFriendly: true,
+        tags: ['historic', 'cobblestones', 'architecture', 'waterfront', 'terrasses'],
+        dogNote:
+          'Montréal is famously dog-friendly — terrasses openly welcome dogs, locals stop to admire a Samoyed, and the cobblestone streets are shaded by old buildings. Morning or evening best for heat.',
+      },
+      {
+        name: 'Mount Royal Park (Parc du Mont-Royal)',
+        location: 'Montréal',
+        description:
+          "Frederick Law Olmsted's masterpiece — the same designer as Central Park, NYC. A forested mountain in the heart of the city with panoramic views of Montréal, a large lake (Lac aux Castors), and excellent hiking trails.",
+        dogFriendly: true,
+        kidFriendly: true,
+        tags: ['park', 'hiking', 'views', 'lake', 'city forest'],
+        dogNote:
+          'DO THIS HIKE EARLY — start by 7 am to beat the heat for the Samoyed. The Chemin Olmsted trail is shaded by tall trees for most of its length. The summit viewpoint is worth every step. The lake area has flat paths great for cooling down afterward.',
+      },
+      {
+        name: 'Lachine Canal Linear Park',
+        location: 'Montréal',
+        description:
+          "A beautiful flat multi-use path running 14 km along the historic Lachine Canal through Montréal's trendiest neighbourhoods. Pass cafés, public art, old industrial buildings, and families on bikes.",
+        dogFriendly: true,
+        kidFriendly: true,
+        tags: ['canal', 'flat', 'cycling', 'pathway', 'neighbourhoods'],
+        dogNote:
+          'Completely flat, largely shaded, and with canal water to cool paws in. A perfect afternoon walk for a Samoyed after the morning mountain hike. Do a 3–4 km section and grab a patio lunch mid-way.',
+      },
+      // PEC
+      {
+        name: 'Picton Village & Main Street',
+        location: 'Prince Edward County',
+        description:
+          "One of Ontario's most charming small towns. Artisan shops, the beloved Books & Company bookstore, excellent bakeries, local art galleries, and the County's best brunch restaurants all on one walkable street.",
+        dogFriendly: true,
+        kidFriendly: true,
+        tags: ['village', 'shopping', 'brunch', 'artisan', 'walkable'],
+        dogNote:
+          'Picton is one of the most dog-friendly towns in Ontario — water bowls outside shops, pet welcome signs, and outdoor patios that genuinely welcome dogs of all sizes.',
+      },
+      {
+        name: 'Norman Hardie Winery',
+        location: 'Prince Edward County',
+        description:
+          "One of the County's most celebrated wineries with a beautiful outdoor patio, farm animals, a wood-fired pizza oven, and relaxed family-friendly atmosphere. The pinot noir is exceptional.",
+        dogFriendly: true,
+        kidFriendly: true,
+        tags: ['winery', 'patio', 'farm', 'pizza', 'relaxed'],
+        dogNote:
+          'Among the most dog-friendly wineries in Ontario. Large gravel yard, open farm setting, and staff who love dogs. The Samoyed will be a star here.',
+      },
+    ],
+
+    trails: [
+      {
+        name: 'Fort Henry Ridge Walk',
+        location: 'Kingston',
+        lengthKm: 1.5,
+        difficulty: 'easy',
+        surface: 'Paved + packed earth',
+        dogFriendly: true,
+        kidFriendly: true,
+        duration: '25–35 min',
+        seniorDogNote: null,
+        samoyedNote:
+          'Short and breezy on the ridge. Elevated position catches wind — good for a Samoyed. Morning or evening only in summer.',
+        description:
+          "A short walk along the ridge above Fort Henry with panoramic views of Kingston Harbour, the Rideau Canal entrance, and the Thousand Islands. Easy and very rewarding.",
+      },
+      {
+        name: 'Rideau Canal Pathway',
+        location: 'Ottawa',
+        lengthKm: 7.8,
+        difficulty: 'easy',
+        surface: 'Paved',
+        dogFriendly: true,
+        kidFriendly: true,
+        duration: 'Do 2–4 km at your pace',
+        seniorDogNote: 'Completely flat and paved. Perfect for any dog.',
+        samoyedNote:
+          'Flat and largely shaded in sections with canal breezes. Morning or evening walk. Water fountains every kilometre.',
+        description:
+          "The finest urban dog walk in Canada. A flat paved pathway along the Rideau Canal through Ottawa's heart with Parliament Hill views, lock stations, and beautiful evening light.",
+      },
+      {
+        name: 'Pink Lake Lookout Trail',
+        location: 'Gatineau Park, QC',
+        lengthKm: 2.8,
+        difficulty: 'easy-moderate',
+        surface: 'Gravel with stone steps',
+        dogFriendly: true,
+        kidFriendly: true,
+        duration: '45–60 min',
+        seniorDogNote: null,
+        samoyedNote:
+          'DO EARLY (before 9 am). The trail is exposed in sections. Bring 2 L of water for the dog. The lookout over the turquoise lake is spectacular and worth the effort.',
+        description:
+          "A beautiful loop in Gatineau Park to a lookout over Pink Lake — a meromictic lake whose layers never mix, producing an extraordinary blue-green colour. One of the most photographed spots in the National Capital Region.",
+      },
+      {
+        name: 'Gatineau Skyline Trail',
+        location: 'Gatineau Park, QC',
+        lengthKm: 6.0,
+        difficulty: 'intermediate',
+        surface: 'Rocky forest trail',
+        dogFriendly: true,
+        kidFriendly: true,
+        duration: '2–2.5 hrs',
+        seniorDogNote: null,
+        samoyedNote:
+          'Intermediate difficulty — only do this if temperature is below 20°C. Early morning start essential. Bring extra water. The Samoyed will love the rocky forest terrain.',
+        description:
+          'A classic Gatineau Park ridge trail with sweeping views of the Ottawa Valley from multiple lookout points. More elevation than Pink Lake but still very accessible for fit families.',
+      },
+      {
+        name: 'Chemin Olmsted — Mount Royal',
+        location: 'Montréal',
+        lengthKm: 5.0,
+        difficulty: 'moderate',
+        surface: 'Gravel carriage road (wide, well-graded)',
+        dogFriendly: true,
+        kidFriendly: true,
+        duration: '1.5–2 hrs round trip',
+        seniorDogNote: null,
+        samoyedNote:
+          'START BY 7 AM in summer. The Chemin Olmsted is a wide gravel carriage road, well-shaded by mature forest for most of its length. Moderate uphill but never steep. The most Samoyed-friendly route up the mountain.',
+        description:
+          "Frederick Law Olmsted's original carriage road spirals gently up Mont-Royal through beautiful mature forest. The main route to the summit viewpoint over Montréal. Dogs love it and the shaded trail keeps the heat manageable.",
+      },
+      {
+        name: 'Lachine Canal Section Walk',
+        location: 'Montréal',
+        lengthKm: 4.0,
+        difficulty: 'easy',
+        surface: 'Paved',
+        dogFriendly: true,
+        kidFriendly: true,
+        duration: '60–75 min',
+        seniorDogNote: 'Completely flat. Ideal for any dog.',
+        samoyedNote:
+          'Do the afternoon section (after the morning mountain hike). The canal provides breeze and shade. Cafés with dog-friendly terrasses every kilometre.',
+        description:
+          "A flat 14 km canal-side pathway through Montréal's hippest neighbourhoods. Walk the 4 km section between Atwater Market and Old Montréal for the best mix of scenery, café stops, and people-watching.",
+      },
+      {
+        name: 'Macaulay Mountain Conservation Area',
+        location: 'Prince Edward County',
+        lengthKm: 3.0,
+        difficulty: 'easy',
+        surface: 'Forested trail',
+        dogFriendly: true,
+        kidFriendly: true,
+        duration: '50–70 min',
+        seniorDogNote: 'Some gentle slopes but well-maintained. Shaded and cool.',
+        samoyedNote:
+          'Lovely shaded forest trail — good for the Samoyed on a warm day. The hilltop lookout has a cooling breeze.',
+        description:
+          'A network of easy-moderate trails through hardwood forest just outside Picton with a hilltop lookout tower and views over Prince Edward County.',
+      },
+    ],
+
+    restaurants: [
+      // Kingston
+      {
+        name: 'Pan Chancho Bakery & Café',
+        location: 'Kingston',
+        cuisine: 'Bakery / Café / Light Meals',
+        dogFriendly: false,
+        kidFriendly: true,
+        priceRange: '$',
+        mustTry: 'Croissants, house-made bread, daily soup',
+        tip: 'No outdoor seating — get takeout and eat at the nearby waterfront park with the dog.',
+      },
+      {
+        name: 'The Merchant Taphouse & Oyster Bar',
+        location: 'Kingston',
+        cuisine: 'Canadian / Pub',
+        dogFriendly: true,
+        kidFriendly: true,
+        priceRange: '$$',
+        mustTry: 'Fish & chips, local craft beers',
+        tip: 'Dog-friendly patio out front. Kids menu available. Great for an easy first-night dinner.',
+      },
+      {
+        name: 'Tango Nuevo',
+        location: 'Kingston',
+        cuisine: 'Latin American / Fusion',
+        dogFriendly: true,
+        kidFriendly: true,
+        priceRange: '$$',
+        mustTry: 'Empanadas, grilled mains',
+        tip: 'Excellent outdoor patio. One of Kingston\'s best-regarded dining spots.',
+      },
+      // Ottawa
+      {
+        name: "Zak's Diner",
+        location: 'Ottawa (ByWard Market)',
+        cuisine: 'Classic Canadian Diner',
+        dogFriendly: false,
+        kidFriendly: true,
+        priceRange: '$',
+        mustTry: 'Poutine, all-day breakfast, milkshakes',
+        tip: 'A ByWard Market institution. Kids love the diner vibe. Get takeout and eat at Major\'s Hill Park with the dog.',
+      },
+      {
+        name: 'The Manx Pub',
+        location: 'Ottawa',
+        cuisine: 'Pub / Canadian',
+        dogFriendly: true,
+        kidFriendly: true,
+        priceRange: '$',
+        mustTry: 'Burgers, local craft beer',
+        tip: 'One of Ottawa\'s most dog-friendly patios. Laid-back atmosphere perfect for families.',
+      },
+      {
+        name: 'Pure Kitchen',
+        location: 'Ottawa',
+        cuisine: 'Healthy / Plant-forward',
+        dogFriendly: true,
+        kidFriendly: true,
+        priceRange: '$$',
+        mustTry: 'Buddha bowls, smoothies, grain salads',
+        tip: 'Great healthy option mid-trip. Outdoor seating welcomes dogs. Good for energy-conscious road-trippers.',
+      },
+      // Montréal
+      {
+        name: "Schwartz's Hebrew Delicatessen",
+        location: 'Montréal',
+        cuisine: 'Montreal Smoked Meat Deli',
+        dogFriendly: false,
+        kidFriendly: true,
+        priceRange: '$',
+        mustTry: 'Medium-fat smoked meat sandwich on rye with mustard — no substitutions',
+        tip: "No outdoor seating, but get takeout and eat on the Saint-Laurent sidewalk. The Samoyed waits outside and gets more attention than the sandwich. An unmissable Montréal experience.",
+      },
+      {
+        name: 'Olive + Gourmando',
+        location: 'Montréal (Old Montréal)',
+        cuisine: 'Café / Sandwiches / Brunch',
+        dogFriendly: true,
+        kidFriendly: true,
+        priceRange: '$$',
+        mustTry: 'Cubano sandwich, homemade granola bowls, house pastries',
+        tip: 'Old Montréal institution with outdoor seating that welcomes dogs. Arrive early — lines form quickly on weekends.',
+      },
+      {
+        name: 'Marché Atwater',
+        location: 'Montréal',
+        cuisine: 'Market / Artisan Food Hall',
+        dogFriendly: true,
+        kidFriendly: true,
+        priceRange: '$–$$$',
+        mustTry: 'Quebec cheese, charcuterie, fresh produce, local pastries',
+        tip: "Outdoor market fully dog-friendly. Assemble an incredible picnic for Mount Royal or the Lachine Canal. One of Canada's great food markets.",
+      },
+      {
+        name: "L'Express",
+        location: 'Montréal',
+        cuisine: 'Classic French Bistro',
+        dogFriendly: false,
+        kidFriendly: true,
+        priceRange: '$$$',
+        mustTry: 'Steak tartare, moules frites, crème brûlée',
+        tip: "A Montréal institution since 1980. Indoor only but unmissable for a special dinner. Book ahead. Get a babysitter if kids are young — this is the adults' splurge meal.",
+      },
+      // PEC
+      {
+        name: 'The Drake Devonshire',
+        location: 'Wellington, Prince Edward County',
+        cuisine: 'Contemporary Canadian / Farm-to-Table',
+        dogFriendly: true,
+        kidFriendly: true,
+        priceRange: '$$$',
+        mustTry: 'Local Lake Ontario fish, County vegetable dishes, Ontario wine list',
+        tip: 'The flagship County dining experience. Waterfront patio is dog-friendly. Book for dinner — this is the trip\'s best meal.',
+      },
+      {
+        name: 'Agrarian Market & Café',
+        location: 'Picton, Prince Edward County',
+        cuisine: 'Local Café / Farm Market',
+        dogFriendly: true,
+        kidFriendly: true,
+        priceRange: '$',
+        mustTry: 'House-roasted coffee, County honey, fresh baked goods',
+        tip: 'Perfect morning stop in Picton. Outdoor seating welcomes dogs. Pick up local provisions for the drive home.',
+      },
+    ],
+
+    lodging: [
+      {
+        name: 'Delta Hotels Kingston Waterfront',
+        type: 'Hotel',
+        location: 'Kingston (Night 1)',
+        petPolicy: 'Pet-friendly — confirm weight limit at booking',
+        familySuitable: true,
+        priceRange: '$$$',
+        rooms: 'Waterfront rooms with Lake Ontario views; family configurations available',
+        bookingNote:
+          'Superb location on the harbour. Kids love watching the ferries. Close to Fort Henry and waterfront.',
+      },
+      {
+        name: 'Homewood Suites by Hilton Ottawa',
+        type: 'Extended Stay Hotel',
+        location: 'Ottawa (Nights 2–3)',
+        petPolicy: 'Pet-friendly with fee — good for larger dogs',
+        familySuitable: true,
+        priceRange: '$$',
+        rooms: 'Full suites with kitchenette, separate living area, pull-out sofa',
+        bookingNote:
+          'Best family value in Ottawa — room for kids and the Samoyed to spread out. Free breakfast included.',
+      },
+      {
+        name: 'Alt Hotel Ottawa',
+        type: 'Boutique Hotel',
+        location: 'Ottawa (Nights 2–3 — upgrade option)',
+        petPolicy: 'Pet-friendly',
+        familySuitable: true,
+        priceRange: '$$$',
+        rooms: 'Modern rooms; larger rooms suit a family of 4',
+        bookingNote:
+          'Stylish and genuinely dog-friendly. Walking distance to Parliament and ByWard Market.',
+      },
+      {
+        name: 'Hôtel Le Saint-Sulpice',
+        type: 'Boutique Hotel',
+        location: 'Montréal — Old Montréal (Nights 4–5)',
+        petPolicy: 'Pet-friendly — dogs welcome',
+        familySuitable: true,
+        priceRange: '$$$',
+        rooms: 'Suite-style rooms with kitchenette; excellent for families',
+        bookingNote:
+          "Right in Vieux-Montréal — walk everywhere. Suites give the family real space. One of Old Montréal's best pet-friendly properties.",
+      },
+      {
+        name: 'Le Centre Sheraton Montréal',
+        type: 'Hotel',
+        location: 'Montréal (Nights 4–5 — central option)',
+        petPolicy: 'Pet-friendly with fee',
+        familySuitable: true,
+        priceRange: '$$$',
+        rooms: 'Family rooms and connecting rooms available',
+        bookingNote:
+          'Central location close to everything. Large rooms for a family. Good pool — the kids will insist.',
+      },
+      {
+        name: 'The Drake Devonshire',
+        type: 'Boutique Hotel',
+        location: 'Wellington, Prince Edward County (Night 6)',
+        petPolicy: 'Dogs warmly welcomed throughout the property',
+        familySuitable: true,
+        priceRange: '$$$',
+        rooms: 'Boutique rooms; family-suitable rooms available',
+        bookingNote:
+          "Ontario's best boutique hotel night. Waterfront, world-class restaurant on-site, and the Samoyed gets a hero's welcome.",
+      },
+    ],
+
+    seasonTips: {
+      june:
+        'June is ideal for the Eastern Circuit — Parliament tulip festival winding down in Ottawa, Montréal Jazz Festival in late June, and PEC starting to buzz. Weather is warm but not oppressively hot, making it the most Samoyed-friendly month for this trip. Book everything 2+ months ahead.',
+      'late-august':
+        'Everything is open and at peak vibrancy — Montréal festivals, full restaurant/winery season in PEC. The hardest month for the Samoyed (heat). Schedule all hikes before 9 am, bring a cooling mat for the van, and do not skip the early morning Mount Royal start. Book 3+ months ahead.',
+      'early-september':
+        'The sweet spot for this circuit. Cooler temperatures (15–22°C) make hiking genuinely enjoyable for the Samoyed without the extreme heat precautions. Gatineau Park shows the first fall colour. PEC harvest season is extraordinary. Crowds thin, prices drop after Labour Day. The best overall choice for this trip.',
+    },
+  },
 ];

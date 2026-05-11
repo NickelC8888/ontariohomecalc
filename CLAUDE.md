@@ -58,21 +58,32 @@ git push -u origin claude/family-road-trip-planner-0rykv
 ## Road Trip Planner — Feature Spec
 Family road trip planner for Toronto-based families travelling with kids and a **senior dog**. 3–4 day round trips in June, Late August, or Early September.
 
-### 4 Trips
-| # | Destination | Round Trip | Drive (1-way) | Days |
-|---|---|---|---|---|
-| 1 | Tobermory & Bruce Peninsula | ~620 km | ~3.5 hrs | 3 days |
-| 2 | Muskoka Lakes & Arrowhead PP | ~400 km | ~2.5 hrs | 3–4 days |
-| 3 | Prince Edward County | ~500 km | ~2.5 hrs | 3 days |
-| 4 | Ottawa & Gatineau Park (QC) | ~900 km | ~4.5 hrs | 4 days |
+### 5 Trips
+| # | Destination | Round Trip | Drive | Days | Profile |
+|---|---|---|---|---|---|
+| 1 | Tobermory & Bruce Peninsula | ~620 km | ~3.5 hrs | 3 days | Family / senior dog |
+| 2 | Muskoka Lakes & Arrowhead PP | ~400 km | ~2.5 hrs | 3–4 days | Family / senior dog |
+| 3 | Prince Edward County | ~500 km | ~2.5 hrs | 3 days | Family / senior dog |
+| 4 | Ottawa & Gatineau Park (QC) | ~900 km | ~4.5 hrs | 4 days | Family / senior dog |
+| 5 | **Eastern Canada Grand Circuit** | ~1,200 km | full loop | **7 days** | **2 adults + 2 kids + Samoyed, van** |
+
+### Trip 5 — Family Profile (Eastern Canada Circuit)
+- **Passengers**: 2 adults, 2 children
+- **Pet**: Samoyed, ~50 lbs (thick double coat — overheats in summer; all hikes before 10 am)
+- **Vehicle**: Van with roof rack
+- **Route**: Toronto → Kingston → Ottawa → Montréal → Prince Edward County → Toronto
+- **Google Maps link**: included in `route.googleMapsUrl`
 
 ### Per-Trip Data Shape
 Each trip in `roadTripData.js` contains:
 - `route.waypoints` — `[lat, lng]` pairs for Leaflet polyline
+- `route.googleMapsUrl` — multi-stop Google Maps directions link (Trip 5+)
 - `route.stops` — named stops with overnight info
 - `route.itinerary` — day-by-day plan
-- `poi[]` — points of interest with `dogFriendly`, `kidFriendly`, `dogNote`
-- `trails[]` — beginner trails with `seniorDogNote`, `difficulty`, `lengthKm`
+- `tripProfile` — passenger/vehicle/dog breed notes (Trip 5+)
+- `poi[]` — points of interest with `dogFriendly`, `kidFriendly`, `dogNote`, `location`
+- `trails[]` — beginner–intermediate trails with `seniorDogNote`, `samoyedNote`, `difficulty`, `lengthKm`
+- `restaurants[]` — best places to eat with `dogFriendly`, `mustTry`, `tip` (Trip 5+; to be added to Trips 1–4 later)
 - `lodging[]` — dog-friendly lodging with `petPolicy`, `priceRange`
 - `seasonTips` — keyed by `june` | `late-august` | `early-september`
 
@@ -90,10 +101,10 @@ Each trip in `roadTripData.js` contains:
 - **Bruce Peninsula NP**: dogs allowed on leash on most trails including The Grotto trail
 
 ## Build Task Checklist
-- [ ] Task 1 — `src/data/roadTripData.js`
-- [ ] Task 2 — `src/components/roadtrip/TripRouteMap.jsx`
+- [x] Task 1 — `src/data/roadTripData.js` (5 trips including 7-day Eastern Circuit)
+- [x] Task 2 — `src/components/roadtrip/TripRouteMap.jsx` (Leaflet map)
 - [ ] Task 3 — `src/components/roadtrip/TripCard.jsx`
-- [ ] Task 4 — `src/components/roadtrip/TripDetail.jsx`
+- [ ] Task 4 — `src/components/roadtrip/TripDetail.jsx` (tabs: Overview · POI · Trails · Restaurants · Lodging · Tips)
 - [ ] Task 5 — `src/pages/RoadTripPlanner.jsx`
 - [ ] Task 6 — Wire up `pages.config.js` + `Layout.jsx`
 - [ ] Task 7 — Commit & push to feature branch
