@@ -20,7 +20,11 @@ const NAV_PAGES = [
   { key: 'SavedScenarios', label: 'My Scenarios', icon: null },
   { key: 'MonthlyBudget', label: 'Monthly Budget Calculator', icon: null },
   { key: 'RentalCalculator', label: 'Rental Calculator', icon: null },
-  { key: 'RoadTripPlanner', label: '🗺️ Road Trip Planner', icon: null },
+];
+
+// Pages visible to all visitors regardless of auth state
+const PUBLIC_NAV_PAGES = [
+  { key: 'RoadTripPlanner', label: '🗺️ Road Trip Planner' },
 ];
 
 const DROPDOWN_PAGES = [
@@ -103,7 +107,7 @@ export default function Layout({ children }) {
                     {p.label}
                   </Link>
                 ))}
-                <Link 
+                <Link
                     to={createPageUrl('Profile')}
                     className="hidden md:block text-sm font-medium text-slate-600 hover:text-emerald-600 transition-colors"
                 >
@@ -111,6 +115,16 @@ export default function Layout({ children }) {
                 </Link>
               </>
             )}
+            {/* Public nav — visible to all visitors */}
+            {PUBLIC_NAV_PAGES.map(p => (
+              <Link
+                key={p.key}
+                to={createPageUrl(p.key)}
+                className="hidden md:block text-sm font-medium text-slate-600 hover:text-violet-600 transition-colors"
+              >
+                {p.label}
+              </Link>
+            ))}
             <div className="hidden md:flex items-center text-sm font-medium text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
               <MapPin className="w-3 h-3 mr-1 text-emerald-600" />
               Ontario, Canada
