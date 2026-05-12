@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { MapPin, Dog, Users, Sun, Leaf } from 'lucide-react';
 import { TRIPS, SEASONS } from '@/data/roadTripData';
 import TripCard from '@/components/roadtrip/TripCard';
@@ -7,6 +7,7 @@ import TripDetail from '@/components/roadtrip/TripDetail';
 export default function RoadTripPlanner() {
   const [selectedTripId, setSelectedTripId] = useState(null);
   const [activeSeason, setActiveSeason] = useState('all');
+  const detailRef = useRef(null);
 
   const filteredTrips = activeSeason === 'all'
     ? TRIPS
@@ -15,7 +16,14 @@ export default function RoadTripPlanner() {
   const selectedTrip = TRIPS.find(t => t.id === selectedTripId);
 
   function handleSelectTrip(id) {
+    const opening = id !== selectedTripId;
     setSelectedTripId(prev => (prev === id ? null : id));
+    if (opening) {
+      // Give React one frame to render the detail section before scrolling
+      setTimeout(() => {
+        detailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 80);
+    }
   }
 
   return (
@@ -97,7 +105,7 @@ export default function RoadTripPlanner() {
 
       {/* Trip detail */}
       {selectedTrip && (
-        <div id="trip-detail" className="border-t border-slate-200 pt-8">
+        <div ref={detailRef} className="border-t border-slate-200 pt-8 scroll-mt-20">
           <TripDetail trip={selectedTrip} activeSeason={activeSeason} />
         </div>
       )}

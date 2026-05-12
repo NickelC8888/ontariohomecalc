@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Calculator, Home as HomeIcon, MapPin, User, LogOut, LogIn, DollarSign, Shield } from 'lucide-react';
+import { Calculator, Home as HomeIcon, MapPin, User, LogOut, LogIn, DollarSign, Shield, Map } from 'lucide-react';
 import { createPageUrl } from './utils';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
@@ -33,6 +33,11 @@ const DROPDOWN_PAGES = [
   { key: 'SavedScenarios', label: 'My Scenarios', icon: Calculator },
   { key: 'MonthlyBudget', label: 'Monthly Budget Calculator', icon: DollarSign },
   { key: 'RentalCalculator', label: 'Rental Calculator', icon: DollarSign },
+];
+
+// Dropdown entries visible to all visitors (no auth required)
+const PUBLIC_DROPDOWN_PAGES = [
+  { key: 'RoadTripPlanner', label: 'Road Trip Planner', icon: Map },
 ];
 
 export default function Layout({ children }) {
@@ -163,6 +168,15 @@ export default function Layout({ children }) {
                         </>
                       )}
                       <DropdownMenuSeparator />
+                      {PUBLIC_DROPDOWN_PAGES.map(p => (
+                        <DropdownMenuItem key={p.key} asChild>
+                          <Link to={createPageUrl(p.key)} className="cursor-pointer text-violet-600">
+                            <p.icon className="w-4 h-4 mr-2" />
+                            {p.label}
+                          </Link>
+                        </DropdownMenuItem>
+                      ))}
+                      <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-red-600">
                         <LogOut className="w-4 h-4 mr-2" />
                         Sign Out
@@ -170,10 +184,29 @@ export default function Layout({ children }) {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 ) : (
-                  <Button onClick={handleSignIn} className="bg-emerald-600 hover:bg-emerald-700 gap-2">
-                    <LogIn className="w-4 h-4" />
-                    Sign In
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm" className="gap-2 md:hidden">
+                          <Map className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        {PUBLIC_DROPDOWN_PAGES.map(p => (
+                          <DropdownMenuItem key={p.key} asChild>
+                            <Link to={createPageUrl(p.key)} className="cursor-pointer text-violet-600">
+                              <p.icon className="w-4 h-4 mr-2" />
+                              {p.label}
+                            </Link>
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    <Button onClick={handleSignIn} className="bg-emerald-600 hover:bg-emerald-700 gap-2">
+                      <LogIn className="w-4 h-4" />
+                      Sign In
+                    </Button>
+                  </div>
                 )}
               </>
             )}

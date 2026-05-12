@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import {
   MapPin, Clock, Calendar, Dog, Users, Car, ExternalLink,
-  Star, Utensils, BedDouble, TreePine, CheckCircle2, XCircle,
-  ChevronDown, ChevronUp, Footprints, Sun,
+  Star, Utensils, BedDouble, TreePine, XCircle,
+  ChevronDown, ChevronUp, Footprints, Sun, Printer, ShoppingBag,
 } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
 import TripRouteMap from './TripRouteMap';
+import TripPackingList from './TripPackingList';
 
 // ─── helpers ────────────────────────────────────────
 function DogBadge({ friendly }) {
@@ -260,18 +260,27 @@ export default function TripDetail({ trip, activeSeason }) {
           </div>
         )}
 
-        {/* Google Maps link */}
-        {trip.route.googleMapsUrl && (
-          <a
-            href={trip.route.googleMapsUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-4 inline-flex items-center gap-2 bg-white/20 hover:bg-white/30 transition-colors text-white text-sm font-medium px-4 py-2 rounded-lg"
+        {/* Action buttons */}
+        <div className="mt-4 flex flex-wrap gap-3">
+          {trip.route.googleMapsUrl && (
+            <a
+              href={trip.route.googleMapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-white/20 hover:bg-white/30 transition-colors text-white text-sm font-medium px-4 py-2 rounded-lg"
+            >
+              <ExternalLink className="w-4 h-4" />
+              Open in Google Maps
+            </a>
+          )}
+          <button
+            onClick={() => window.print()}
+            className="inline-flex items-center gap-2 bg-white/20 hover:bg-white/30 transition-colors text-white text-sm font-medium px-4 py-2 rounded-lg"
           >
-            <ExternalLink className="w-4 h-4" />
-            Open full route in Google Maps
-          </a>
-        )}
+            <Printer className="w-4 h-4" />
+            Print trip plan
+          </button>
+        </div>
       </div>
 
       {/* Samoyed heat warning */}
@@ -321,7 +330,7 @@ export default function TripDetail({ trip, activeSeason }) {
 
       {/* Detail tabs */}
       <Tabs defaultValue="poi">
-        <TabsList className={`grid w-full ${hasRestaurants ? 'grid-cols-5' : 'grid-cols-4'}`}>
+        <TabsList className={`grid w-full ${hasRestaurants ? 'grid-cols-6' : 'grid-cols-5'}`}>
           <TabsTrigger value="poi" className="flex items-center gap-1.5 text-xs">
             <MapPin className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Points of Interest</span>
@@ -345,6 +354,11 @@ export default function TripDetail({ trip, activeSeason }) {
           <TabsTrigger value="tips" className="flex items-center gap-1.5 text-xs">
             <TreePine className="w-3.5 h-3.5" />
             Tips
+          </TabsTrigger>
+          <TabsTrigger value="packing" className="flex items-center gap-1.5 text-xs">
+            <ShoppingBag className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Pack List</span>
+            <span className="sm:hidden">Pack</span>
           </TabsTrigger>
         </TabsList>
 
@@ -401,6 +415,9 @@ export default function TripDetail({ trip, activeSeason }) {
               </ul>
             </div>
           )}
+        </TabsContent>
+        <TabsContent value="packing" className="mt-4">
+          <TripPackingList />
         </TabsContent>
       </Tabs>
     </div>
