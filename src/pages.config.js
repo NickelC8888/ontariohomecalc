@@ -49,6 +49,7 @@
  */
 import Comparison from './pages/Comparison';
 import Home from './pages/Home';
+import TvHealthCheck from './pages/TvHealthCheck';
 import LandTransferTax from './pages/LandTransferTax';
 import MonthlyBudget from './pages/MonthlyBudget';
 import Profile from './pages/Profile';
@@ -69,6 +70,7 @@ export const PAGES = {
     "SavedScenarios": SavedScenarios,
     "RentalCalculator": RentalCalculator,
     "Admin": Admin,
+    "TvHealthCheck": TvHealthCheck,
 }
 
 export const pagesConfig = {
