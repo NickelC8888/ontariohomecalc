@@ -1,0 +1,85 @@
+{
+  "name": "AppSettings",
+  "type": "object",
+  "properties": {
+    "setting_key": {
+      "type": "string",
+      "description": "Unique key for the setting"
+    },
+    "page_visibility": {
+      "type": "object",
+      "description": "Page visibility settings per role",
+      "properties": {
+        "Home": {
+          "type": "object",
+          "properties": {
+            "admin": {
+              "type": "boolean"
+            },
+            "user": {
+              "type": "boolean"
+            }
+          }
+        },
+        "LandTransferTax": {
+          "type": "object",
+          "properties": {
+            "admin": {
+              "type": "boolean"
+            },
+            "user": {
+              "type": "boolean"
+            }
+          }
+        },
+        "SavedScenarios": {
+          "type": "object",
+          "properties": {
+            "admin": {
+              "type": "boolean"
+            },
+            "user": {
+              "type": "boolean"
+            }
+          }
+        },
+        "MonthlyBudget": {
+          "type": "object",
+          "properties": {
+            "admin": {
+              "type": "boolean"
+            },
+            "user": {
+              "type": "boolean"
+            }
+          }
+        },
+        "RentalCalculator": {
+          "type": "object",
+          "properties": {
+            "admin": {
+              "type": "boolean"
+            },
+            "user": {
+              "type": "boolean"
+            }
+          }
+        },
+        "Comparison": {
+          "type": "object",
+          "properties": {
+            "admin": {
+              "type": "boolean"
+            },
+            "user": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "setting_key"
+  ]
+}

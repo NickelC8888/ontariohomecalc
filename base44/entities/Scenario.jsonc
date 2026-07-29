@@ -1,0 +1,105 @@
+{
+  "name": "Scenario",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name of the scenario (e.g. 'Dream Condo', 'Investment Property')"
+    },
+    "property_price": {
+      "type": "number",
+      "description": "Purchase price of the property"
+    },
+    "down_payment_percent": {
+      "type": "number",
+      "description": "Down payment percentage"
+    },
+    "interest_rate": {
+      "type": "number",
+      "description": "Mortgage interest rate"
+    },
+    "amortization": {
+      "type": "number",
+      "description": "Amortization period in years"
+    },
+    "mortgage_term": {
+      "type": "number",
+      "description": "Mortgage term in years"
+    },
+    "mortgage_type": {
+      "type": "string",
+      "enum": [
+        "fixed",
+        "variable"
+      ],
+      "description": "Type of mortgage rate"
+    },
+    "lender_name": {
+      "type": "string",
+      "description": "Selected mortgage lender"
+    },
+    "mortgage_insurance_type": {
+      "type": "string",
+      "enum": [
+        "auto",
+        "manual"
+      ],
+      "default": "auto",
+      "description": "Method of calculating mortgage insurance"
+    },
+    "is_toronto": {
+      "type": "boolean",
+      "description": "Whether the property is in Toronto"
+    },
+    "is_first_time_buyer": {
+      "type": "boolean",
+      "description": "Whether the user is a first-time home buyer"
+    },
+    "closing_costs_breakdown": {
+      "type": "object",
+      "properties": {
+        "legal": {
+          "type": "number"
+        },
+        "appraisal": {
+          "type": "number"
+        },
+        "inspection": {
+          "type": "number"
+        }
+      }
+    },
+    "closing_costs": {
+      "type": "number",
+      "description": "Total estimated closing costs"
+    },
+    "mortgage_insurance": {
+      "type": "number",
+      "description": "CMHC Insurance premium amount"
+    },
+    "stress_test_rate": {
+      "type": "number",
+      "description": "Qualifying rate used for stress test"
+    },
+    "stress_test_payment": {
+      "type": "number",
+      "description": "Monthly payment under stress test conditions"
+    },
+    "monthly_payment": {
+      "type": "number",
+      "description": "Calculated monthly mortgage payment"
+    },
+    "total_ltt": {
+      "type": "number",
+      "description": "Calculated total land transfer tax"
+    },
+    "total_cash_needed": {
+      "type": "number",
+      "description": "Total cash required upfront"
+    }
+  },
+  "required": [
+    "name",
+    "property_price"
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "name": "BudgetSnapshot",
+  "type": "object",
+  "properties": {
+    "snapshot_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of this budget snapshot"
+    },
+    "monthly_income": {
+      "type": "number",
+      "description": "Monthly income"
+    },
+    "mortgage_payment": {
+      "type": "number"
+    },
+    "maintenance_fee": {
+      "type": "number"
+    },
+    "property_tax": {
+      "type": "number"
+    },
+    "utilities": {
+      "type": "number"
+    },
+    "insurance": {
+      "type": "number"
+    },
+    "cable": {
+      "type": "number"
+    },
+    "internet": {
+      "type": "number"
+    },
+    "telephone": {
+      "type": "number"
+    },
+    "groceries": {
+      "type": "number"
+    },
+    "transportation": {
+      "type": "number"
+    },
+    "transportation_type": {
+      "type": "string",
+      "enum": [
+        "car",
+        "transit"
+      ],
+      "default": "car"
+    },
+    "other_expenses": {
+      "type": "number"
+    },
+    "savings": {
+      "type": "number"
+    },
+    "total_housing": {
+      "type": "number"
+    },
+    "total_living": {
+      "type": "number"
+    },
+    "total_expenses": {
+      "type": "number"
+    },
+    "remaining_income": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "snapshot_date",
+    "monthly_income"
+  ]
+}
