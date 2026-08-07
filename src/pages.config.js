@@ -56,6 +56,7 @@ import Registration from './pages/Registration';
 import SavedScenarios from './pages/SavedScenarios';
 import RentalCalculator from './pages/RentalCalculator';
 import Admin from './pages/Admin';
+import RoadTripPlanner from './pages/RoadTripPlanner';
 import __Layout from './Layout.jsx';
 
 
@@ -69,6 +70,7 @@ export const PAGES = {
     "SavedScenarios": SavedScenarios,
     "RentalCalculator": RentalCalculator,
     "Admin": Admin,
+    "RoadTripPlanner": RoadTripPlanner,
 }
 
 export const pagesConfig = {
